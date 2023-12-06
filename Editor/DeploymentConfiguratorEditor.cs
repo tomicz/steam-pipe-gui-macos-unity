@@ -24,12 +24,6 @@ namespace Birdmoot.Settings
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(10);
-
-            GenerateDepotFile(deploymentConfigurator);
-
-            GUILayout.Space(10);
-
             BuildTarget(deploymentConfigurator);
 
             GUILayout.Space(10);
@@ -37,16 +31,9 @@ namespace Birdmoot.Settings
 
         private void GenerateDepotFile(DeploymentConfigurator deploymentConfigurator)
         {
-            if(GUILayout.Button("Generate Depot File"))
-            {
-                string depotVDFPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "scripts", $"app_{deploymentConfigurator.DepotId}.vdf");
+            string depotVDFPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "scripts", $"app_{deploymentConfigurator.DepotId}.vdf");
 
-                if (!File.Exists(depotVDFPath))
-                {
-                    File.WriteAllText(depotVDFPath, GetDepotContent(deploymentConfigurator));
-                }
-            }
-
+            File.WriteAllText(depotVDFPath, GetDepotContent(deploymentConfigurator));
             UpdateDepotVDF(deploymentConfigurator);
         }
 
@@ -111,7 +98,7 @@ namespace Birdmoot.Settings
 
         private void BuildTarget(DeploymentConfigurator deploymentConfigurator)
         {
-            //UpdateBuildDescription(deploymentConfigurator.sdkPath, deploymentConfigurator.DepotId, deploymentConfigurator.Description);
+            GenerateDepotFile(deploymentConfigurator);
 
             if (GUILayout.Button("Build target"))
             {
