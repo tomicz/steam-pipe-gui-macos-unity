@@ -98,10 +98,10 @@ namespace Tomicz.Deployer
 
         private void BuildTarget(DeploymentConfigurator deploymentConfigurator)
         {
-            GenerateDepotFile(deploymentConfigurator);
 
             if (GUILayout.Button("Build target"))
             {
+                GenerateDepotFile(deploymentConfigurator);
                 deploymentConfigurator.OnBuildTargetClicked();
                 RunSteamCommand(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId, deploymentConfigurator.Description, deploymentConfigurator.BuildTarget);
             }
