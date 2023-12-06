@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Birdmoot.Settings
+namespace Tomicz.Deployer
 {
     [CreateAssetMenu(fileName = "DeploymentConfigurator", menuName = "Tomicz/Steam/Depoloyement Target")]
     public class DeploymentConfigurator : ScriptableObject

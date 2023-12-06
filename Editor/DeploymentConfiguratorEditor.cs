@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace Birdmoot.Settings
+namespace Tomicz.Deployer
 {
     [CustomEditor(typeof(DeploymentConfigurator))]
     public class DeploymentConfiguratorEditor : Editor
