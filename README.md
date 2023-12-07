@@ -1,4 +1,4 @@
-### unity-steam-macos-deployer Unity Steam to MacOS Deployer
+### Unity Steam to MacOS Deployer
 
 Simplify the process of getting your game on Steam for macOS with our easy-to-use deployer tool. This tool makes it simple to upload your game using the Steamworks SDK, creating a smooth experience for macOS users and ensuring consistency across different platforms. Easily publish your game on Steam!
 
