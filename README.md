@@ -52,3 +52,12 @@ Depots help organize game content into distinct categories based on the type of 
 In the image below is an example of what it is suppose to look like. In the read area is my app name that I've hidden. On the left side you will see depot ID. Each platform (e.g Windows, MacOS) has its own ID.
 
 ![Screenshot 2023-12-07 at 12 41 03](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
+
+## Installing Deployer in Unity
+
+1. Open your Unity project.
+2. Open Package Manager by going to **Window > Package Manager**.
+3. Click on **+** sign on the top left corner in Package Manager.
+4. Click **Add package from Git url**.
+5. Past this [git@github.com:tomicz/unity-steam-macos-deployer.git](git@github.com:tomicz/unity-steam-macos-deployer.git) into the field and click **Add**.
+6. Deployer package will now be installed in your Unity project.
