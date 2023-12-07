@@ -1,4 +1,4 @@
-### Unity Steam to MacOS Deployer
+# Unity Steam to MacOS Deployer
 
 Simplify the process of getting your game on Steam for macOS with our easy-to-use deployer tool. This tool makes it simple to upload your game using the Steamworks SDK, creating a smooth experience for macOS users and ensuring consistency across different platforms. Easily publish your game on Steam!
 
@@ -24,3 +24,16 @@ While Windows users have SteamPipeGUI, a user-friendly version, to deploy builds
 
     As part of the application creation process, Steam will assign a unique App ID to your game.
     This App ID is crucial for identifying and managing your game on the Steam platform. 
+
+## Launch Options
+
+1. Go to Steamworks
+2. Click on Dashboard
+3. Select your app
+4. Go to **Edit Steamworks Settings**
+5. Go to Installation > General Installation
+6. Now add your Launch Options. In my example I added launch options for both Windows and MacOS. You can make launch options for the platforms of your wish. In the image below you can see an example of how I did it.
+
+Instead of AppName use your actual app name with spaces (if your game name has spaces).
+
+![Screenshot 2023-12-07 at 12 30 02](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/cfe16859-8175-46be-9071-7a45aad71d09)
