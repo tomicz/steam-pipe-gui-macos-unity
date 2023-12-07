@@ -37,3 +37,18 @@ While Windows users have SteamPipeGUI, a user-friendly version, to deploy builds
 Instead of AppName use your actual app name with spaces (if your game name has spaces).
 
 ![Screenshot 2023-12-07 at 12 30 02](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/cfe16859-8175-46be-9071-7a45aad71d09)
+
+## Installing Depots
+
+Depots help organize game content into distinct categories based on the type of content. Common types of depots include executables, assets (graphics, audio, etc.), and localization files.
+
+1. You need to create depots for each platform that you are publishing on.
+2. Go to Steamworks dashboard.
+3. Select your app.
+4. Edit Steamworks Settings.
+5. Select SteamPipe > Depots.
+6. Click Add new Depot.
+
+In the image below is an example of what it is suppose to look like. In the read area is my app name that I've hidden. On the left side you will see depot ID. Each platform (e.g Windows, MacOS) has its own ID.
+
+![Screenshot 2023-12-07 at 12 41 03](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
