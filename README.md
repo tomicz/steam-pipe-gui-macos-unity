@@ -61,3 +61,25 @@ In the image below is an example of what it is suppose to look like. In the read
 4. Click **Add package from Git url**.
 5. Past this [git@github.com:tomicz/unity-steam-macos-deployer.git](git@github.com:tomicz/unity-steam-macos-deployer.git) into the field and click **Add**.
 6. Deployer package will now be installed in your Unity project.
+
+## Deploying builds from Unity Editor
+
+1. Right-click inside your Unity Project tab and go to Create > Tomicz > Steam > Deployment Target
+2. Create each for each platform, e.g DepoloymentTargetMacOS, DepoloymentTargetWindows
+3. Enter your game name. Has to match the one in Launch options (important!).
+4. Enter description
+5. Your Steam username.
+6. Enter your app ID which you can find in your app dashboard.
+7. Depot ID you can find inside your depots. (MacOS or Windows depots do not have the same ID).
+8. Select your steam sdk path.
+
+Here are two examples of what it is supposed to look like. For Mac and Windows
+
+### MacOS
+![Screenshot 2023-12-07 at 13 28 19](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/104edc81-dc88-4637-af3c-331cfdc30f7b)
+
+### Windows
+![Screenshot 2023-12-07 at 13 29 33](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/7f6f939a-1822-4662-9979-c87bd57bd01a)
+
+9. The last step is to click Build Target. This will first build your game into your Steam sdk folder, then it will upload it. The terminal on your MacOS will open up and it might ask you for a password and two auth keys.
+10. After the upload is complete go to your app in the Steamworks dashboard, and click SteamPipe > Builds. There you are supposed to see all your newly uploaded builds. I keep a description for each build custom, so I know exactly which new build is. E.g Target: StandaloneOSX 0.0.x or Target: StandaloneWindows 0.0.x.
