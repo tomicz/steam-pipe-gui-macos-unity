@@ -1,6 +1,6 @@
 {
     "name": "com.tomicz.unity-steam-macos-deployer",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "displayName": "Unity macOS Steam Deployer",
     "description": "Simplify Steam game deployment on macOS with our user-friendly deployer. This tool streamlines the upload process using the Steamworks SDK, providing a hassle-free experience for macOS users and ensuring cross-platform consistency. Get your game on Steam effortlessly!",
     "unity": "2018.3",
