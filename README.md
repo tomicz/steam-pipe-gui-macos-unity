@@ -11,16 +11,20 @@ While Windows users have the luxury of SteamPipeGUI for deploying builds effortl
 Follow these steps to set up your game on Steam:
 
 1. **Create a Steamworks Account:**
-    - Visit the Steamworks website and follow the registration process to set up your developer account.
+   
+   Visit the Steamworks website and follow the registration process to set up your developer account.
 
-2. **Access the Steamworks Dashboard:**
-    - Log in and navigate to the Steamworks dashboard.
+3. **Access the Steamworks Dashboard:**
+   
+    Log in and navigate to the Steamworks dashboard.
 
-3. **Create Your Application:**
-    - Initiate the process of creating a new application for your game within the Steamworks dashboard.
+5. **Create Your Application:**
+   
+    Initiate the process of creating a new application for your game within the Steamworks dashboard.
 
-4. **Obtain Your App ID:**
-    - Steam will assign a unique App ID to your game during the application creation process.
+7. **Obtain Your App ID:**
+   
+    Steam will assign a unique App ID to your game during the application creation process.
 
 ## Configuring Launch Options
 
