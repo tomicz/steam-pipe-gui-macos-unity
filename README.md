@@ -26,6 +26,14 @@ Follow these steps to set up your game on Steam:
    
     Steam will assign a unique App ID to your game during the application creation process.
 
+## Download Steam SDK
+
+The Steamworks SDK provides a range of features which are designed to help ship your application or game on Steam in an efficient manner.
+
+You can download the latest version of the Steamworks SDK [here.](https://partner.steamgames.com/?goto=%2Fdownloads%2Flist)
+
+Inside Steam SDK is where your builds are located. Also there are some .vdf scripts located inside sdk folder and they are tricky to setup. But do not worry, because this tool will handle all of it for you. You only need to provide an APP ID and DEPOT ID, which you can learn about about in further steps.
+
 ## Configuring Launch Options
 
 To configure launch options:
