@@ -2,6 +2,15 @@
 
 Simplify the process of bringing your game to Steam for macOS with our user-friendly deployer tool. This tool streamlines the upload process using the Steamworks SDK, ensuring a seamless experience for macOS users while maintaining consistency across different platforms. Easily publish your game on Steam hassle-free!
 
+## Table of Contents
+- [Overview](#overview)
+- [Getting Started with Steamworks](#getting-started-with-steamworks)
+- [Download Steam SDK](#download-steam-sdk)
+- [Configuring Launch Options](#configuring-launch-options)
+- [Installing Depots](#installing-depots)
+- [Installing Deployer in Unity](#installing-deployer-in-unity)
+- [Deploying Builds from Unity Editor](#deploying-builds-from-unity-editor)
+
 ## Overview
 
 While Windows users have the luxury of SteamPipeGUI for deploying builds effortlessly, macOS users face the challenge of using Steam commands in their Command Line Interface (CLI). Steam's documentation can be unclear for first-timers. To address this, I created this repository, providing a tool to publish new builds on Steam directly from your Unity Editor on macOS. The best part? It reduces the publishing time from 30 minutes to under 1 minute.
@@ -11,20 +20,16 @@ While Windows users have the luxury of SteamPipeGUI for deploying builds effortl
 Follow these steps to set up your game on Steam:
 
 1. **Create a Steamworks Account:**
-   
    Visit the Steamworks website and follow the registration process to set up your developer account.
 
-3. **Access the Steamworks Dashboard:**
-   
-    Log in and navigate to the Steamworks dashboard.
+2. **Access the Steamworks Dashboard:**
+   Log in and navigate to the Steamworks dashboard.
 
-5. **Create Your Application:**
-   
-    Initiate the process of creating a new application for your game within the Steamworks dashboard.
+3. **Create Your Application:**
+   Initiate the process of creating a new application for your game within the Steamworks dashboard.
 
-7. **Obtain Your App ID:**
-   
-    Steam will assign a unique App ID to your game during the application creation process.
+4. **Obtain Your App ID:**
+   Steam will assign a unique App ID to your game during the application creation process.
 
 ## Download Steam SDK
 
@@ -43,8 +48,8 @@ To configure launch options:
 3. Go to **Edit Steamworks Settings** > Installation > General Installation.
 4. Add your Launch Options for each platform.
 
-Example
-![Launch Options](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/cfe16859-8175-46be-9071-7a45aad71d09)
+   Example
+   ![Launch Options](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/cfe16859-8175-46be-9071-7a45aad71d09)
 
 ## Installing Depots
 
@@ -54,7 +59,7 @@ Depots organize game content into categories. Create depots for each platform:
 2. Select your app and edit Steamworks settings.
 3. Select SteamPipe > Depots and click Add new Depot.
 
-![Depots](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
+   ![Depots](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
 
 ## Installing Deployer in Unity
 
@@ -71,12 +76,12 @@ Depots organize game content into categories. Create depots for each platform:
 4. Enter description, Steam username, app ID, and depot ID.
 5. Select your Steam SDK path.
 
-### Examples
-#### MacOS
-![MacOS Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/104edc81-dc88-4637-af3c-331cfdc30f7b)
+   ### Examples
+   #### MacOS
+   ![MacOS Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/104edc81-dc88-4637-af3c-331cfdc30f7b)
 
-#### Windows
-![Windows Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/7f6f939a-1822-4662-9979-c87bd57bd01a)
+   #### Windows
+   ![Windows Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/7f6f939a-1822-4662-9979-c87bd57bd01a)
 
 6. Click **Build Target** to build and upload your game. Follow the on-screen prompts.
 
