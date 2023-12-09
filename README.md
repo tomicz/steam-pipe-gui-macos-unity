@@ -37,7 +37,7 @@ The Steamworks SDK provides a range of features which are designed to help ship 
 
 You can download the latest version of the Steamworks SDK [here.](https://partner.steamgames.com/?goto=%2Fdownloads%2Flist)
 
-Inside Steam SDK is where your builds are located. Also there are some .vdf scripts located inside sdk folder and they are tricky to setup. But do not worry, because this tool will handle all of it for you. You only need to provide an APP ID and DEPOT ID, which you can learn about about in further steps.
+Inside Steam SDK is where your builds are located. Also, there are some .vdf scripts located inside the SDK folder, and they are tricky to set up. But do not worry, because this tool will handle all of it for you. You only need to provide an APP ID and DEPOT ID, which you can learn about in further steps.
 
 ## Configuring Launch Options
 
@@ -48,24 +48,31 @@ To configure launch options:
 3. Go to **Edit Steamworks Settings** > Installation > General Installation.
 4. Add your Launch Options for each platform.
 
-   Example
+   Example:
    ![Launch Options](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/cfe16859-8175-46be-9071-7a45aad71d09)
 
 ## Installing Depots
 
-Depots organize game content into categories. Create depots for each platform:
+Depots organize game content into categories. Follow these steps to create depots for each platform:
 
-1. Go to Steamworks dashboard.
-2. Select your app and edit Steamworks settings.
-3. Select SteamPipe > Depots and click Add new Depot.
+1. Go to the [Steamworks dashboard](https://partner.steamgames.com/).
+2. Select your app and navigate to the "Edit Steamworks Settings" section.
+3. In the left menu, choose "SteamPipe" and then select "Depots."
+4. Click on "Add new Depot" to create a new depot.
 
-   ![Depots](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
+    ![Depots](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/8dc3edb3-9076-4b94-be92-494a16be2f0a)
+
+5. Fill in the necessary details for your depot, such as the name and description.
+6. Configure the content for the depot, specifying the files and folders associated with this particular depot.
+7. Save your changes.
+
+Repeat these steps for each platform you intend to support. Depots allow you to organize and manage different aspects of your game content efficiently on the Steam platform.
 
 ## Installing Deployer in Unity
 
 1. Open your Unity project.
 2. Open Package Manager (**Window > Package Manager**).
-3. Click on **+** and choose **Add package from Git url**.
+3. Click on **+** and choose **Add package from Git URL**.
 4. Paste [git@github.com:tomicz/unity-steam-macos-deployer.git](git@github.com:tomicz/unity-steam-macos-deployer.git) and click **Add**.
 
 ## Deploying Builds from Unity Editor
