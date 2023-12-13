@@ -19,9 +19,13 @@ namespace Tomicz.Deployer
             DeploymentConfigurator deploymentConfigurator = (DeploymentConfigurator)target;
 
             GUILayout.BeginHorizontal();
-
             GetSDKPath(deploymentConfigurator);
+            GUILayout.EndHorizontal();
 
+            GUILayout.Space(10);
+
+            GUILayout.BeginHorizontal();
+            GenerateBuild(deploymentConfigurator);
             GUILayout.EndHorizontal();
 
             BuildTarget(deploymentConfigurator);
@@ -96,13 +100,20 @@ namespace Tomicz.Deployer
             }
         }
 
-        private void BuildTarget(DeploymentConfigurator deploymentConfigurator)
+        private void GenerateBuild(DeploymentConfigurator deploymentConfigurator)
         {
-
-            if (GUILayout.Button("Build target"))
+            if (GUILayout.Button("Generate Build"))
             {
                 GenerateDepotFile(deploymentConfigurator);
                 deploymentConfigurator.OnBuildTargetClicked();
+            }
+        }
+
+        private void BuildTarget(DeploymentConfigurator deploymentConfigurator)
+        {
+
+            if (GUILayout.Button("Upload"))
+            {
                 RunSteamCommand(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId, deploymentConfigurator.Description, deploymentConfigurator.BuildTarget);
             }
         }
