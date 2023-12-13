@@ -111,13 +111,29 @@ namespace Tomicz.Deployer
 
         private void UploadTarget(DeploymentConfigurator deploymentConfigurator)
         {
+            DeleteDoNotShipFolderBeforeUpload(deploymentConfigurator);
+
             if (GUILayout.Button("Upload"))
             {
-                RunSteamCommand(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId, deploymentConfigurator.Description, deploymentConfigurator.BuildTarget);
+                OpenTerminal(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId);
             }
         }
 
-        public static void RunSteamCommand(string sdkPath, string username, string depotId, string buildNumber, BuildTarget buildTarget)
+        private static void DeleteDoNotShipFolderBeforeUpload(DeploymentConfigurator deploymentConfigurator)
+        {
+            if (deploymentConfigurator.deleteDoNotShipFolder)
+            {
+                string doNotShipFolderPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "content", $"{deploymentConfigurator.BuildTarget}", $"{deploymentConfigurator.AppName}_BackUpThisFolder_ButDontShipItWithYourGame");
+
+                if (Directory.Exists(doNotShipFolderPath))
+                {
+                    Directory.Delete(doNotShipFolderPath, true);
+                    AssetDatabase.Refresh(); 
+                }
+            }
+        }
+
+        public static void OpenTerminal(string sdkPath, string username, string depotId)
         {
             string steamCmdCommand = $"{sdkPath}/tools/ContentBuilder/builder_osx/steamcmd.sh +login {username} +run_app_build_http {sdkPath}/tools/ContentBuilder/scripts/app_{depotId}.vdf +quit";
             string terminalPath = "/System/Applications/Utilities/Terminal.app";
@@ -130,16 +146,16 @@ namespace Tomicz.Deployer
 
             Process.Start(processStartInfo);
 
-            RunSteamCmdCommand(steamCmdCommand);
+            RunSteamcmdCommand(steamCmdCommand);
         }
 
-        static void RunSteamCmdCommand(string steamCmdCommand)
+        private static void RunSteamcmdCommand(string steamcmdCommand)
         {
             // Run the SteamCMD command in Terminal
             ProcessStartInfo runCommandInfo = new ProcessStartInfo()
             {
                 FileName = "osascript", // osascript is a command-line tool for executing AppleScripts
-                Arguments = $"-e 'tell application \"Terminal\" to do script \"{steamCmdCommand}\"'",
+                Arguments = $"-e 'tell application \"Terminal\" to do script \"{steamcmdCommand}\"'",
                 UseShellExecute = false,
                 CreateNoWindow = true
             };

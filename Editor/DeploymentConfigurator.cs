@@ -14,6 +14,7 @@ namespace Tomicz.Deployer
         public string sdkPath { get; set; }
         public string AppId => _appId;
         public string DepotId => _depotId;
+        public bool deleteDoNotShipFolder => _deleteDoNotShipFolder;
 
         [SerializeField] private BuildTarget _buildTarget;
 
@@ -25,6 +26,10 @@ namespace Tomicz.Deployer
         [SerializeField] private string _steamUsername;
         [SerializeField] private string _appId;
         [SerializeField] private string _depotId;
+
+        [Tooltip("A folder YourGameName_BackUpThisFolder_ButDontShipItWithYourGame is auto generated when using IL2CPP scripting backend. Do not upload this folder with your build to Steam. By default it will be deleted. You are given an option to back it up before deleting if you are planning using it for debugging purposes. If you are using Mono backend scripting or making Windows builds, then ignore this field.")]
+        [Header("IL2CPP")]
+        [SerializeField] private bool _deleteDoNotShipFolder = true;
 
         public void OnBuildTargetClicked()
         {
