@@ -1,4 +1,4 @@
-# Unity Steam MacOS Deployer
+# SteamPipeGUI for MacOS (Unity)
 
 Simplify the process of bringing your game to Steam for macOS with our user-friendly deployer tool. This tool streamlines the upload process using the Steamworks SDK, ensuring a seamless experience for macOS users while maintaining consistency across different platforms. Easily publish your game on Steam hassle-free!
 
