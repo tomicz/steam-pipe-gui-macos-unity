@@ -93,3 +93,5 @@ Repeat these steps for each platform you intend to support. Depots allow you to 
 6. Click **Build Target** to build and upload your game. Follow the on-screen prompts.
 
 After the upload is complete, go to your app in the Steamworks dashboard and click SteamPipe > Builds to see your newly uploaded builds. Keep a custom description for each build for easy identification, such as "Target: StandaloneOSX 0.0.x" or "Target: StandaloneWindows 0.0.x."
+
+Developed by Darko Tomic - Tomicz Engineering LLC
