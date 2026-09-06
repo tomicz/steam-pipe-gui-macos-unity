@@ -48,7 +48,10 @@ namespace Tomicz.Deployer
         public string ExecutablePath => Path.Combine(ContentPath, _appName + GetExecutableExtension());
         public bool HasBuild => File.Exists(ExecutablePath) || Directory.Exists(ExecutablePath);
 
+        [Header("Build")]
         [SerializeField] private BuildTarget _buildTarget;
+        [Tooltip("Build with the Development Build option: profiler connection, script debugging and the development console.")]
+        [SerializeField] private bool _developmentBuild = false;
 
         [Header("App info")]
         [SerializeField] private string _appName = "";
@@ -96,7 +99,8 @@ namespace Tomicz.Deployer
         /// </summary>
         public bool BuildPlayer()
         {
-            BuildSummary summary = BuildPipeline.BuildPlayer(GetScenePaths(), ExecutablePath, _buildTarget, BuildOptions.None).summary;
+            BuildOptions options = _developmentBuild ? BuildOptions.Development : BuildOptions.None;
+            BuildSummary summary = BuildPipeline.BuildPlayer(GetScenePaths(), ExecutablePath, _buildTarget, options).summary;
 
             if (summary.result == BuildResult.Succeeded)
             {
