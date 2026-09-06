@@ -2,6 +2,21 @@
 
 All notable changes to this package are documented here.
 
+## [1.3.0] - 2026-09-06
+
+### Added
+- Batch-mode entry points under `Tomicz.Deployer.CommandLine`: `CreateTarget`, `Build`, `PrepareUpload` and `BuildAndPrepareUpload`. A whole deployment can be set up, built and prepared for upload from a terminal, with exit code 1 on any failure.
+- `Upload` and `PrepareUpload` write `upload_build_<AppId>_<BuildTarget>.sh` next to the VDF scripts. Running it uploads the prepared build from any shell.
+- `steam-deploy` Claude Code skill in `Skills~/steam-deploy`, with a `unity-batch.sh` runner, so an AI agent can drive the whole flow without the Unity GUI.
+- Inspector screenshots of the current target in `Documentation~/images`, referenced from the README.
+
+### Fixed
+- Building with no scenes enabled in Build Settings is reported up front instead of failing on an untitled scene.
+
+### Changed
+- Build and upload logic moved from the Inspector into a static `Deployer` class shared by the buttons and the command line.
+- Every message the package logs starts with `[SteamDeployer]`.
+
 ## [1.2.0] - 2026-09-06
 
 ### Added
