@@ -11,10 +11,10 @@ namespace Tomicz.Deployer
         public string Description => _description;
         public string AppName => _appName;
         public string SteamUsername => _steamUsername;
-        public string sdkPath { get; set; }
         public string AppId => _appId;
         public string DepotId => _depotId;
         public bool deleteDoNotShipFolder => _deleteDoNotShipFolder;
+        public string SdkPath => _sdkPath;
 
         [SerializeField] private BuildTarget _buildTarget;
 
@@ -31,9 +31,13 @@ namespace Tomicz.Deployer
         [Tooltip("IL2CPP builds create a folder named <App Name>_BackUpThisFolder_ButDontShipItWithYourGame next to the executable. It must not be uploaded to Steam. When enabled, the folder is deleted when you click Upload, so back it up between Generate Build and Upload if you need it for debugging. Has no effect on Mono builds.")]
         [SerializeField] private bool _deleteDoNotShipFolder = true;
 
+        // Drawn by DeploymentConfiguratorEditor next to a Browse button.
+        [HideInInspector]
+        [SerializeField] private string _sdkPath = "";
+
         public void OnBuildTargetClicked()
         {
-            string outputPath = Path.Combine(sdkPath, "tools", "ContentBuilder", "content", $"{_buildTarget}", $"{_appName}{GetAppExecutionExtension()}");
+            string outputPath = Path.Combine(_sdkPath, "tools", "ContentBuilder", "content", $"{_buildTarget}", $"{_appName}{GetAppExecutionExtension()}");
 
             BuildPipeline.BuildPlayer(GetScenePaths(), outputPath, _buildTarget, BuildOptions.None);
 

@@ -14,20 +14,13 @@ namespace Tomicz.Deployer
         {
             base.OnInspectorGUI();
 
-            GUILayout.Space(10);
-
             DeploymentConfigurator deploymentConfigurator = (DeploymentConfigurator)target;
 
-            GUILayout.BeginHorizontal();
-            GetSDKPath(deploymentConfigurator);
-            GUILayout.EndHorizontal();
-
+            GUILayout.Space(10);
+            DrawSdkPathField();
             GUILayout.Space(10);
 
-            GUILayout.BeginHorizontal();
             GenerateBuild(deploymentConfigurator);
-            GUILayout.EndHorizontal();
-
             UploadTarget(deploymentConfigurator);
 
             GUILayout.Space(10);
@@ -35,7 +28,7 @@ namespace Tomicz.Deployer
 
         private void GenerateDepotFile(DeploymentConfigurator deploymentConfigurator)
         {
-            string depotVDFPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "scripts", $"app_{deploymentConfigurator.DepotId}.vdf");
+            string depotVDFPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"app_{deploymentConfigurator.DepotId}.vdf");
 
             File.WriteAllText(depotVDFPath, GetDepotContent(deploymentConfigurator));
             UpdateDepotVDF(deploymentConfigurator);
@@ -47,13 +40,13 @@ namespace Tomicz.Deployer
 
             vdfContent += $"\t\"appid\" \"{deploymentConfigurator.AppId}\"\n";
             vdfContent += $"\t\"desc\" \"{deploymentConfigurator.Description}\"\n";
-            vdfContent += $"\t\"buildoutput\" \"{Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "output", deploymentConfigurator.BuildTarget.ToString())}\" // Replace this with the correct property\n";
+            vdfContent += $"\t\"buildoutput\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "output", deploymentConfigurator.BuildTarget.ToString())}\" // Replace this with the correct property\n";
             vdfContent += "\t\"contentroot\" \"\"\n";
             vdfContent += "\t\"setlive\" \"beta\"\n";  // You can modify this line if needed
             vdfContent += "\t\"preview\" \"0\"\n";
             vdfContent += "\t\"local\" \"\"\n";
             vdfContent += "\t\"depots\"\n\t{\n";
-            vdfContent += $"\t\t\"{deploymentConfigurator.DepotId}\" \"{Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf")}\"\n";
+            vdfContent += $"\t\t\"{deploymentConfigurator.DepotId}\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf")}\"\n";
             vdfContent += "\t}\n}";
 
             return vdfContent;
@@ -61,7 +54,7 @@ namespace Tomicz.Deployer
 
         private void UpdateDepotVDF(DeploymentConfigurator deploymentConfigurator)
         {
-            string depotVDFPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf");
+            string depotVDFPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf");
 
             File.WriteAllText(depotVDFPath, GetDepotBuildConfigContent(deploymentConfigurator));
         }
@@ -71,7 +64,7 @@ namespace Tomicz.Deployer
             string depotBuildConfigContent = "DepotBuildConfig\n{\n";
 
             depotBuildConfigContent += $"\t\"DepotID\" \"{deploymentConfigurator.DepotId}\"\n";
-            depotBuildConfigContent += $"\t\"contentroot\" \"{Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "content", deploymentConfigurator.BuildTarget.ToString())}\"\n";
+            depotBuildConfigContent += $"\t\"contentroot\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "content", deploymentConfigurator.BuildTarget.ToString())}\"\n";
             depotBuildConfigContent += "\t\"FileMapping\"\n\t{\n";
             depotBuildConfigContent += "\t\t\"LocalPath\" \"*\"\n";
             depotBuildConfigContent += "\t\t\"DepotPath\" \".\"\n";
@@ -83,21 +76,28 @@ namespace Tomicz.Deployer
             return depotBuildConfigContent;
         }
 
-        private void GetSDKPath(DeploymentConfigurator deploymentConfigurator)
+        private void DrawSdkPathField()
         {
-            EditorGUILayout.LabelField("SDK Folder Path:", deploymentConfigurator.sdkPath);
+            serializedObject.Update();
 
-            if (GUILayout.Button("Browse", GUILayout.Width(80)))
+            SerializedProperty sdkPath = serializedObject.FindProperty("_sdkPath");
+
+            using (new EditorGUILayout.HorizontalScope())
             {
-                string sdkPath = EditorUtility.OpenFolderPanel("Select Folder", "", "");
+                EditorGUILayout.PropertyField(sdkPath, new GUIContent("SDK Folder Path", "Root folder of the Steamworks SDK, the one containing tools/ContentBuilder."));
 
-                if (!string.IsNullOrEmpty(sdkPath))
+                if (GUILayout.Button("Browse", GUILayout.Width(80)))
                 {
-                    deploymentConfigurator.sdkPath = sdkPath;
+                    string selected = EditorUtility.OpenFolderPanel("Select Steamworks SDK folder", sdkPath.stringValue, "");
 
-                    EditorUtility.SetDirty(deploymentConfigurator);
+                    if (!string.IsNullOrEmpty(selected))
+                    {
+                        sdkPath.stringValue = selected;
+                    }
                 }
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void GenerateBuild(DeploymentConfigurator deploymentConfigurator)
@@ -114,7 +114,7 @@ namespace Tomicz.Deployer
             if (GUILayout.Button("Upload"))
             {
                 DeleteDoNotShipFolderBeforeUpload(deploymentConfigurator);
-                OpenTerminal(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId);
+                OpenTerminal(deploymentConfigurator.SdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Tomicz.Deployer
         {
             if (deploymentConfigurator.deleteDoNotShipFolder)
             {
-                string doNotShipFolderPath = Path.Combine(deploymentConfigurator.sdkPath, "tools", "ContentBuilder", "content", $"{deploymentConfigurator.BuildTarget}", $"{deploymentConfigurator.AppName}_BackUpThisFolder_ButDontShipItWithYourGame");
+                string doNotShipFolderPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "content", $"{deploymentConfigurator.BuildTarget}", $"{deploymentConfigurator.AppName}_BackUpThisFolder_ButDontShipItWithYourGame");
 
                 if (Directory.Exists(doNotShipFolderPath))
                 {
