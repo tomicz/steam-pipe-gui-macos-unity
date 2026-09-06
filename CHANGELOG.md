@@ -2,6 +2,26 @@
 
 All notable changes to this package are documented here.
 
+## [1.2.0] - 2026-09-06
+
+### Added
+- **Depots** list replaces the single Depot ID. Each depot has a Depot ID and a Local Path pattern relative to the build folder, so DLC or shared-content depots can take a subfolder while the main depot takes everything. Existing targets are migrated automatically.
+- **Build and Upload** button that runs both steps and stops if the build fails.
+- **Development Build** toggle.
+- **Append Version To Description** toggle that adds the Player Settings version to the build description.
+- EditMode tests for the VDF generation under `Tests/Editor`.
+
+### Fixed
+- Upload refuses to run when no build exists for the target and tells you to generate one first.
+- Double quotes in the description or branch, and slashes in the app name, are rejected before they can break the generated VDF or the build path.
+- Only standalone build targets are accepted.
+- Builds and uploads run after the inspector GUI pass, which avoids "Invalid GUILayout state" errors after a build.
+
+### Changed
+- The app VDF is named `app_build_<AppId>_<BuildTarget>.vdf` and each depot script `depot_build_<DepotId>.vdf`, so two targets for the same app no longer overwrite each other's scripts. Old `app_<DepotId>.vdf` and `depot_<DepotId>.vdf` files in the SDK scripts folder are no longer used and can be deleted.
+- VDF text generation moved into a static `VdfGenerator` class.
+- Assembly definition renamed from `Tomicz.Deployment.Editor` to `Tomicz.Deployer.Editor` to match the namespace.
+
 ## [1.1.0] - 2026-09-06
 
 ### Fixed

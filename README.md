@@ -13,6 +13,8 @@ Simplify the process of bringing your game to Steam for macOS with our user-frie
 - [Deploying Builds from Unity Editor](#deploying-builds-from-unity-editor)
 - [How It Works](#how-it-works)
 - [Troubleshooting](#troubleshooting)
+- [Upgrading from 1.1](#upgrading-from-11)
+- [Running the Tests](#running-the-tests)
 - [License](#license)
 
 ## Overview
@@ -90,6 +92,8 @@ Repeat these steps for each platform you intend to support. Depots allow you to 
    https://github.com/tomicz/steam-pipe-gui-macos-unity.git
    ```
 
+To stay on a specific release, append the tag to the URL, for example `https://github.com/tomicz/steam-pipe-gui-macos-unity.git#v1.2.0`. Releases are listed in [CHANGELOG.md](CHANGELOG.md).
+
 ## Deploying Builds from Unity Editor
 
 1. Right-click inside your Unity Project tab and go to **Create > Tomicz > Steam > Deployment Target**.
@@ -98,18 +102,21 @@ Repeat these steps for each platform you intend to support. Depots allow you to 
 
    | Field | What to enter |
    |---|---|
-   | **Build Target** | The platform to build, e.g. `StandaloneOSX` or `StandaloneWindows64`. |
+   | **Build Target** | `StandaloneOSX`, `StandaloneWindows`, `StandaloneWindows64` or `StandaloneLinux64`. Other platforms are rejected. |
+   | **Development Build** | Builds with the Development Build option: profiler connection, script debugging and the development console. |
    | **App Name** | The executable name. It must match your Launch Options. |
-   | **Description** | Shown in the Steamworks build list. Something like `StandaloneOSX 0.0.4` makes builds easy to tell apart. |
+   | **Description** | Shown in the Steamworks build list. |
+   | **Append Version To Description** | Adds the version from Player Settings, so `Release candidate` becomes `Release candidate 1.2.0`. |
    | **Steam Username** | The Steam account that owns the app. |
-   | **App ID** / **Depot ID** | From the Steamworks dashboard. |
+   | **App ID** | From the Steamworks dashboard. |
+   | **Depots** | One entry per depot that receives this build. Most games need a single entry with **Local Path** `*`. Add more for DLC or shared-content depots and give them a subfolder pattern such as `DLC/*`. |
    | **Set Live Branch** | Branch the upload is set live on. Defaults to `beta`. Leave empty to upload without setting it live and pick the build manually under SteamPipe > Builds. |
    | **Delete Do Not Ship Folder** | IL2CPP only. Deletes the `<AppName>_BackUpThisFolder_ButDontShipItWithYourGame` folder when you click **Upload**, so it is never shipped to players. Back it up between Generate Build and Upload if you need it for debugging. |
 
 4. Click **Browse** next to **SDK Folder Path** and select the root folder of the Steamworks SDK (the one containing `tools/ContentBuilder`). The path is saved with the target, so you only do this once. You can also paste the path into the field.
 
    ### Examples
-   The screenshots predate the separate Generate Build and Upload buttons and the Set Live Branch and IL2CPP fields, but the rest of the layout is the same.
+   The screenshots are from version 1.0 and predate the Generate Build, Upload and Build and Upload buttons, the Depots list and the Development Build, Append Version and Set Live Branch fields. The remaining fields are the same.
 
    #### MacOS
    ![MacOS Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/104edc81-dc88-4637-af3c-331cfdc30f7b)
@@ -117,10 +124,10 @@ Repeat these steps for each platform you intend to support. Depots allow you to 
    #### Windows
    ![Windows Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/7f6f939a-1822-4662-9979-c87bd57bd01a)
 
-5. Click **Generate Build**. The scenes enabled in Build Settings are built into the SDK content folder. Check the Console: a failed build is reported there and nothing is uploaded until you fix it.
+5. Click **Generate Build**. The scenes enabled in Build Settings are built into the SDK content folder. A failed build is reported in the Console.
 6. Click **Upload**. A Terminal window opens and runs `steamcmd`. Enter your Steam password and Steam Guard code when asked, then wait for the upload to finish.
 
-You can generate a build without uploading it, and you can click **Upload** again later without rebuilding. Missing fields or a wrong SDK path are reported in the Console before anything runs.
+**Build and Upload** runs both steps in order and stops if the build fails. You can also generate a build without uploading it, or click **Upload** again later without rebuilding. Missing fields, a wrong SDK path or a missing build are reported in the Console before anything runs.
 
 After the upload is complete, go to your app in the Steamworks dashboard and click SteamPipe > Builds to see your newly uploaded builds. Keep a custom description for each build for easy identification, such as "Target: StandaloneOSX 0.0.x" or "Target: StandaloneWindows 0.0.x."
 
@@ -128,22 +135,40 @@ After the upload is complete, go to your app in the Steamworks dashboard and cli
 
 Everything happens inside the Steamworks SDK folder you selected:
 
-- **Generate Build** writes `tools/ContentBuilder/scripts/app_<DepotId>.vdf` and `depot_<DepotId>.vdf` from the target's fields, then builds the player into `tools/ContentBuilder/content/<BuildTarget>/<AppName>.app` (or `.exe`, `.x86_64`).
-- **Upload** rewrites the same two VDF files so they match the current Inspector values, deletes the IL2CPP do-not-ship folder if that option is on, and runs:
+- **Generate Build** writes `tools/ContentBuilder/scripts/app_build_<AppId>_<BuildTarget>.vdf` plus one `depot_build_<DepotId>.vdf` per depot from the target's fields, then builds the player into `tools/ContentBuilder/content/<BuildTarget>/<AppName>.app` (or `.exe`, `.x86_64`).
+- **Upload** checks that the executable exists, rewrites the VDF files so they match the current Inspector values, deletes the IL2CPP do-not-ship folder if that option is on, and runs:
 
   ```
-  tools/ContentBuilder/builder_osx/steamcmd.sh +login <username> +run_app_build_http tools/ContentBuilder/scripts/app_<DepotId>.vdf +quit
+  tools/ContentBuilder/builder_osx/steamcmd.sh +login <username> +run_app_build_http tools/ContentBuilder/scripts/app_build_<AppId>_<BuildTarget>.vdf +quit
   ```
 
-- The depot VDF uploads everything under `content/<BuildTarget>` recursively and excludes `*.pdb` files.
+- Each depot script uploads the files matching its Local Path under `content/<BuildTarget>` recursively and excludes `*.pdb` files.
 
 ## Troubleshooting
 
 - **"SDK folder path is not set or does not contain tools/ContentBuilder"**: select the SDK root folder, not a subfolder.
 - **"steamcmd.sh not found"**: the SDK is incomplete or the path is wrong. The file lives at `tools/ContentBuilder/builder_osx/steamcmd.sh`.
+- **"No build found at ..."**: click **Generate Build** first, or check that App Name matches the executable that was built.
+- **"Build target ... is not a standalone platform"**: pick one of the four standalone targets. SteamPipe uploads from this tool only cover desktop players.
+- **"Depot ID ... is listed more than once"**: each depot may appear once in the Depots list.
 - **Login fails in Terminal**: Steam Guard asks for a code on the first login from a machine. Type it in the Terminal window.
-- **Build is not showing up in Steamworks**: check the Terminal output for errors, and make sure the Depot ID in the target matches a depot of the App ID.
+- **Build is not showing up in Steamworks**: check the Terminal output for errors, and make sure every Depot ID in the target belongs to the App ID.
 - **The SDK path contains a single quote**: rename the folder. Quotes in the path cannot be passed safely to Terminal.
+
+## Upgrading from 1.1
+
+- The single **Depot ID** field became the **Depots** list. Existing targets are migrated the first time they load, so open each target once and save the project.
+- The VDF scripts are now named `app_build_<AppId>_<BuildTarget>.vdf` and `depot_build_<DepotId>.vdf`. The old `app_<DepotId>.vdf` and `depot_<DepotId>.vdf` files in `tools/ContentBuilder/scripts` are no longer used and can be deleted.
+
+## Running the Tests
+
+The VDF generation has EditMode tests in `Tests/Editor`. To run them from a project that installed this package through Package Manager, add the package name to `testables` in `Packages/manifest.json`:
+
+```json
+"testables": ["com.tomicz.unity-steam-macos-deployer"]
+```
+
+Then open **Window > General > Test Runner** and run the EditMode tests.
 
 ## License
 
