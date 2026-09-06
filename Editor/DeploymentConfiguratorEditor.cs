@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,8 +7,6 @@ namespace Tomicz.Deployer
     [CustomEditor(typeof(DeploymentConfigurator))]
     public class DeploymentConfiguratorEditor : Editor
     {
-        private const string DoNotShipFolderSuffix = "_BackUpThisFolder_ButDontShipItWithYourGame";
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -24,7 +19,7 @@ namespace Tomicz.Deployer
 
             if (GUILayout.Button("Generate Build"))
             {
-                Defer(() => GenerateBuild(configurator));
+                Defer(() => Deployer.Build(configurator));
             }
 
             if (GUILayout.Button("Upload"))
@@ -36,7 +31,7 @@ namespace Tomicz.Deployer
             {
                 Defer(() =>
                 {
-                    if (GenerateBuild(configurator))
+                    if (Deployer.Build(configurator))
                     {
                         Upload(configurator);
                     }
@@ -76,105 +71,12 @@ namespace Tomicz.Deployer
             EditorApplication.delayCall += () => action();
         }
 
-        private static bool GenerateBuild(DeploymentConfigurator configurator)
-        {
-            if (!configurator.Validate())
-            {
-                return false;
-            }
-
-            WriteVdfScripts(configurator);
-            return configurator.BuildPlayer();
-        }
-
         private static void Upload(DeploymentConfigurator configurator)
         {
-            if (!configurator.Validate())
+            if (Deployer.PrepareUpload(configurator))
             {
-                return;
+                Deployer.RunUploadInTerminal(configurator);
             }
-
-            if (!configurator.HasBuild)
-            {
-                UnityEngine.Debug.LogError($"No build found at {configurator.ExecutablePath}. Click Generate Build first.", configurator);
-                return;
-            }
-
-            // Regenerate so the VDF reflects the current description and branch, even if they changed after the build.
-            WriteVdfScripts(configurator);
-            DeleteDoNotShipFolder(configurator);
-            RunSteamcmdInTerminal(configurator);
-        }
-
-        private static void WriteVdfScripts(DeploymentConfigurator configurator)
-        {
-            Directory.CreateDirectory(configurator.ScriptsPath);
-
-            List<KeyValuePair<string, string>> depotScripts = new List<KeyValuePair<string, string>>();
-
-            foreach (Depot depot in configurator.Depots)
-            {
-                string depotVdfPath = configurator.GetDepotVdfPath(depot.DepotId);
-                File.WriteAllText(depotVdfPath, VdfGenerator.DepotBuild(depot.DepotId, configurator.ContentPath, depot.LocalPath));
-                depotScripts.Add(new KeyValuePair<string, string>(depot.DepotId, depotVdfPath));
-            }
-
-            File.WriteAllText(configurator.AppVdfPath, VdfGenerator.AppBuild(configurator.AppId, configurator.BuildDescription, configurator.BuildOutputPath, configurator.SetLiveBranch, depotScripts));
-        }
-
-        private static void DeleteDoNotShipFolder(DeploymentConfigurator configurator)
-        {
-            if (!configurator.DeleteDoNotShipFolder)
-            {
-                return;
-            }
-
-            string folderPath = Path.Combine(configurator.ContentPath, configurator.AppName + DoNotShipFolderSuffix);
-
-            if (Directory.Exists(folderPath))
-            {
-                Directory.Delete(folderPath, true);
-                UnityEngine.Debug.Log($"Deleted IL2CPP debug folder: {folderPath}");
-            }
-        }
-
-        private static void RunSteamcmdInTerminal(DeploymentConfigurator configurator)
-        {
-            string steamcmdPath = Path.Combine(configurator.ContentBuilderPath, "builder_osx", "steamcmd.sh");
-
-            if (!File.Exists(steamcmdPath))
-            {
-                UnityEngine.Debug.LogError($"steamcmd.sh not found at {steamcmdPath}. Check the SDK folder path.", configurator);
-                return;
-            }
-
-            if (configurator.SdkPath.Contains("'"))
-            {
-                UnityEngine.Debug.LogError("The SDK folder path must not contain a single quote (').", configurator);
-                return;
-            }
-
-            // Paths are single-quoted so SDK folders containing spaces work in the shell.
-            string command = $"'{steamcmdPath}' +login {configurator.SteamUsername} +run_app_build_http '{configurator.AppVdfPath}' +quit";
-
-            string activate = "tell application \"Terminal\" to activate";
-            string doScript = $"tell application \"Terminal\" to do script \"{command}\"";
-
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = "osascript",
-                Arguments = $"-e {QuoteArgument(activate)} -e {QuoteArgument(doScript)}",
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            Process.Start(startInfo);
-        }
-
-        // Wraps a process argument in double quotes, escaping backslashes and quotes inside it.
-        private static string QuoteArgument(string value)
-        {
-            return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
         }
     }
 }
