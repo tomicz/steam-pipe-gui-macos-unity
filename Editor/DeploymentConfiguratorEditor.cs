@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
@@ -22,12 +23,12 @@ namespace Tomicz.Deployer
 
             if (GUILayout.Button("Generate Build"))
             {
-                GenerateBuild(configurator);
+                Defer(() => GenerateBuild(configurator));
             }
 
             if (GUILayout.Button("Upload"))
             {
-                Upload(configurator);
+                Defer(() => Upload(configurator));
             }
 
             GUILayout.Space(10);
@@ -55,6 +56,12 @@ namespace Tomicz.Deployer
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        // Builds and process launches run after the GUI pass so they cannot break the inspector layout.
+        private static void Defer(Action action)
+        {
+            EditorApplication.delayCall += () => action();
         }
 
         private static void GenerateBuild(DeploymentConfigurator configurator)
