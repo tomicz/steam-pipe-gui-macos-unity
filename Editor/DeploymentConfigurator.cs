@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Tomicz.Deployer
 {
-    [CreateAssetMenu(fileName = "DeploymentConfigurator", menuName = "Tomicz/Steam/Depoloyement Target")]
+    [CreateAssetMenu(fileName = "DeploymentConfigurator", menuName = "Tomicz/Steam/Deployment Target")]
     public class DeploymentConfigurator : ScriptableObject
     {
         public BuildTarget BuildTarget => _buildTarget;
@@ -13,8 +13,14 @@ namespace Tomicz.Deployer
         public string SteamUsername => _steamUsername;
         public string AppId => _appId;
         public string DepotId => _depotId;
-        public bool deleteDoNotShipFolder => _deleteDoNotShipFolder;
+        public bool DeleteDoNotShipFolder => _deleteDoNotShipFolder;
         public string SdkPath => _sdkPath;
+
+        public string ContentBuilderPath => Path.Combine(_sdkPath, "tools", "ContentBuilder");
+        public string ContentPath => Path.Combine(ContentBuilderPath, "content", _buildTarget.ToString());
+        public string ScriptsPath => Path.Combine(ContentBuilderPath, "scripts");
+        public string AppVdfPath => Path.Combine(ScriptsPath, $"app_{_depotId}.vdf");
+        public string DepotVdfPath => Path.Combine(ScriptsPath, $"depot_{_depotId}.vdf");
 
         [SerializeField] private BuildTarget _buildTarget;
 
@@ -35,25 +41,20 @@ namespace Tomicz.Deployer
         [HideInInspector]
         [SerializeField] private string _sdkPath = "";
 
-        public void OnBuildTargetClicked()
+        public void BuildPlayer()
         {
-            string outputPath = Path.Combine(_sdkPath, "tools", "ContentBuilder", "content", $"{_buildTarget}", $"{_appName}{GetAppExecutionExtension()}");
+            string outputPath = Path.Combine(ContentPath, _appName + GetExecutableExtension());
 
             BuildPipeline.BuildPlayer(GetScenePaths(), outputPath, _buildTarget, BuildOptions.None);
 
-            Debug.Log((int)_buildTarget);
             Debug.Log("Target successfully built.");
         }
 
-        private string GetAppExecutionExtension()
+        private string GetExecutableExtension()
         {
-            if(_buildTarget == BuildTarget.StandaloneOSX)
+            if (_buildTarget == BuildTarget.StandaloneOSX)
             {
                 return ".app";
-            }
-            else if(_buildTarget == BuildTarget.StandaloneWindows)
-            {
-                return ".exe";
             }
 
             return ".exe";

@@ -1,6 +1,6 @@
 {
     "name": "Tomicz.Deployment.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "Tomicz.Deployer",
     "references": [],
     "includePlatforms": [
         "Editor"

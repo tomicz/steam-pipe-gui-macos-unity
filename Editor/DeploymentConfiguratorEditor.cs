@@ -1,7 +1,5 @@
-using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,70 +8,29 @@ namespace Tomicz.Deployer
     [CustomEditor(typeof(DeploymentConfigurator))]
     public class DeploymentConfiguratorEditor : Editor
     {
+        private const string DoNotShipFolderSuffix = "_BackUpThisFolder_ButDontShipItWithYourGame";
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            DeploymentConfigurator deploymentConfigurator = (DeploymentConfigurator)target;
+            DeploymentConfigurator configurator = (DeploymentConfigurator)target;
 
             GUILayout.Space(10);
             DrawSdkPathField();
             GUILayout.Space(10);
 
-            GenerateBuild(deploymentConfigurator);
-            UploadTarget(deploymentConfigurator);
+            if (GUILayout.Button("Generate Build"))
+            {
+                GenerateBuild(configurator);
+            }
+
+            if (GUILayout.Button("Upload"))
+            {
+                Upload(configurator);
+            }
 
             GUILayout.Space(10);
-        }
-
-        private void GenerateDepotFile(DeploymentConfigurator deploymentConfigurator)
-        {
-            string depotVDFPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"app_{deploymentConfigurator.DepotId}.vdf");
-
-            File.WriteAllText(depotVDFPath, GetDepotContent(deploymentConfigurator));
-            UpdateDepotVDF(deploymentConfigurator);
-        }
-
-        private string GetDepotContent(DeploymentConfigurator deploymentConfigurator)
-        {
-            string vdfContent = "appbuild\n{\n";
-
-            vdfContent += $"\t\"appid\" \"{deploymentConfigurator.AppId}\"\n";
-            vdfContent += $"\t\"desc\" \"{deploymentConfigurator.Description}\"\n";
-            vdfContent += $"\t\"buildoutput\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "output", deploymentConfigurator.BuildTarget.ToString())}\" // Replace this with the correct property\n";
-            vdfContent += "\t\"contentroot\" \"\"\n";
-            vdfContent += "\t\"setlive\" \"beta\"\n";  // You can modify this line if needed
-            vdfContent += "\t\"preview\" \"0\"\n";
-            vdfContent += "\t\"local\" \"\"\n";
-            vdfContent += "\t\"depots\"\n\t{\n";
-            vdfContent += $"\t\t\"{deploymentConfigurator.DepotId}\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf")}\"\n";
-            vdfContent += "\t}\n}";
-
-            return vdfContent;
-        }
-
-        private void UpdateDepotVDF(DeploymentConfigurator deploymentConfigurator)
-        {
-            string depotVDFPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "scripts", $"depot_{deploymentConfigurator.DepotId}.vdf");
-
-            File.WriteAllText(depotVDFPath, GetDepotBuildConfigContent(deploymentConfigurator));
-        }
-
-        private string GetDepotBuildConfigContent(DeploymentConfigurator deploymentConfigurator)
-        {
-            string depotBuildConfigContent = "DepotBuildConfig\n{\n";
-
-            depotBuildConfigContent += $"\t\"DepotID\" \"{deploymentConfigurator.DepotId}\"\n";
-            depotBuildConfigContent += $"\t\"contentroot\" \"{Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "content", deploymentConfigurator.BuildTarget.ToString())}\"\n";
-            depotBuildConfigContent += "\t\"FileMapping\"\n\t{\n";
-            depotBuildConfigContent += "\t\t\"LocalPath\" \"*\"\n";
-            depotBuildConfigContent += "\t\t\"DepotPath\" \".\"\n";
-            depotBuildConfigContent += "\t\t\"recursive\" \"1\"\n";
-            depotBuildConfigContent += "\t}\n";
-            depotBuildConfigContent += "\t\"FileExclusion\" \"*.pdb\"\n";
-            depotBuildConfigContent += "}\n";
-
-            return depotBuildConfigContent;
         }
 
         private void DrawSdkPathField()
@@ -100,34 +57,69 @@ namespace Tomicz.Deployer
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void GenerateBuild(DeploymentConfigurator deploymentConfigurator)
+        private static void GenerateBuild(DeploymentConfigurator configurator)
         {
-            if (GUILayout.Button("Generate Build"))
-            {
-                GenerateDepotFile(deploymentConfigurator);
-                deploymentConfigurator.OnBuildTargetClicked();
-            }
+            WriteVdfScripts(configurator);
+            configurator.BuildPlayer();
         }
 
-        private void UploadTarget(DeploymentConfigurator deploymentConfigurator)
+        private static void Upload(DeploymentConfigurator configurator)
         {
-            if (GUILayout.Button("Upload"))
-            {
-                DeleteDoNotShipFolderBeforeUpload(deploymentConfigurator);
-                OpenTerminal(deploymentConfigurator.SdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId);
-            }
+            DeleteDoNotShipFolder(configurator);
+            OpenTerminal(configurator.SdkPath, configurator.SteamUsername, configurator.DepotId);
         }
 
-        private static void DeleteDoNotShipFolderBeforeUpload(DeploymentConfigurator deploymentConfigurator)
+        private static void WriteVdfScripts(DeploymentConfigurator configurator)
         {
-            if (deploymentConfigurator.deleteDoNotShipFolder)
-            {
-                string doNotShipFolderPath = Path.Combine(deploymentConfigurator.SdkPath, "tools", "ContentBuilder", "content", $"{deploymentConfigurator.BuildTarget}", $"{deploymentConfigurator.AppName}_BackUpThisFolder_ButDontShipItWithYourGame");
+            Directory.CreateDirectory(configurator.ScriptsPath);
+            File.WriteAllText(configurator.AppVdfPath, GetAppVdfContent(configurator));
+            File.WriteAllText(configurator.DepotVdfPath, GetDepotVdfContent(configurator));
+        }
 
-                if (Directory.Exists(doNotShipFolderPath))
-                {
-                    Directory.Delete(doNotShipFolderPath, true);
-                }
+        private static string GetAppVdfContent(DeploymentConfigurator configurator)
+        {
+            string buildOutputPath = Path.Combine(configurator.ContentBuilderPath, "output", configurator.BuildTarget.ToString());
+
+            return "appbuild\n{\n" +
+                   $"\t\"appid\" \"{configurator.AppId}\"\n" +
+                   $"\t\"desc\" \"{configurator.Description}\"\n" +
+                   $"\t\"buildoutput\" \"{buildOutputPath}\"\n" +
+                   "\t\"contentroot\" \"\"\n" +
+                   "\t\"setlive\" \"beta\"\n" +
+                   "\t\"preview\" \"0\"\n" +
+                   "\t\"local\" \"\"\n" +
+                   "\t\"depots\"\n\t{\n" +
+                   $"\t\t\"{configurator.DepotId}\" \"{configurator.DepotVdfPath}\"\n" +
+                   "\t}\n}\n";
+        }
+
+        private static string GetDepotVdfContent(DeploymentConfigurator configurator)
+        {
+            return "DepotBuildConfig\n{\n" +
+                   $"\t\"DepotID\" \"{configurator.DepotId}\"\n" +
+                   $"\t\"contentroot\" \"{configurator.ContentPath}\"\n" +
+                   "\t\"FileMapping\"\n\t{\n" +
+                   "\t\t\"LocalPath\" \"*\"\n" +
+                   "\t\t\"DepotPath\" \".\"\n" +
+                   "\t\t\"recursive\" \"1\"\n" +
+                   "\t}\n" +
+                   "\t\"FileExclusion\" \"*.pdb\"\n" +
+                   "}\n";
+        }
+
+        private static void DeleteDoNotShipFolder(DeploymentConfigurator configurator)
+        {
+            if (!configurator.DeleteDoNotShipFolder)
+            {
+                return;
+            }
+
+            string folderPath = Path.Combine(configurator.ContentPath, configurator.AppName + DoNotShipFolderSuffix);
+
+            if (Directory.Exists(folderPath))
+            {
+                Directory.Delete(folderPath, true);
+                UnityEngine.Debug.Log($"Deleted IL2CPP debug folder: {folderPath}");
             }
         }
 
@@ -159,31 +151,6 @@ namespace Tomicz.Deployer
             };
 
             Process.Start(runCommandInfo);
-        }
-
-        public static void UpdateBuildDescription(string sdkPath, string depotId, string description)
-        {
-            string vdfFilePath = Path.Combine(sdkPath, "tools", "ContentBuilder", "scripts", $"app_{depotId}.vdf");
-
-            if (string.IsNullOrEmpty(vdfFilePath))
-            {
-                UnityEngine.Debug.LogError("Couldn't find vdf path");
-                return;
-            }
-
-            // Read the content of the VDF file.
-            string vdfContent = File.ReadAllText(vdfFilePath);
-
-            // Define a regular expression to match the "description" entry.
-            string pattern = "\"desc\"[ \t]+\"[^\"]+\"";
-
-            // Use Regex to find and replace the description entry.
-            vdfContent = Regex.Replace(vdfContent, pattern, $"\"desc\" \"{description}\"");
-
-            // Write the modified content back to the file.
-            File.WriteAllText(vdfFilePath, vdfContent);
-
-            Console.WriteLine("Build description updated.");
         }
     }
 }
