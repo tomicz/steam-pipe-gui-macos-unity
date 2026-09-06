@@ -107,7 +107,7 @@ namespace Tomicz.Deployer
 
             return "appbuild\n{\n" +
                    $"\t\"appid\" \"{configurator.AppId}\"\n" +
-                   $"\t\"desc\" \"{configurator.Description}\"\n" +
+                   $"\t\"desc\" \"{configurator.BuildDescription}\"\n" +
                    $"\t\"buildoutput\" \"{buildOutputPath}\"\n" +
                    "\t\"contentroot\" \"\"\n" +
                    $"\t\"setlive\" \"{configurator.SetLiveBranch}\"\n" +

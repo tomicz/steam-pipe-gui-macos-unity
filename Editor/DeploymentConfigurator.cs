@@ -14,6 +14,24 @@ namespace Tomicz.Deployer
 
         public BuildTarget BuildTarget => _buildTarget;
         public string Description => _description;
+
+        /// <summary>
+        /// Description written to the app VDF, with the Player Settings version appended when enabled.
+        /// </summary>
+        public string BuildDescription
+        {
+            get
+            {
+                if (!_appendVersionToDescription)
+                {
+                    return _description;
+                }
+
+                string version = PlayerSettings.bundleVersion;
+                return string.IsNullOrEmpty(_description) ? version : $"{_description} {version}";
+            }
+        }
+
         public string AppName => _appName;
         public string SteamUsername => _steamUsername;
         public string AppId => _appId;
@@ -35,6 +53,8 @@ namespace Tomicz.Deployer
         [Header("App info")]
         [SerializeField] private string _appName = "";
         [SerializeField] private string _description = "";
+        [Tooltip("Append the version from Player Settings to the description, so \"Release candidate\" becomes \"Release candidate 1.2.0\".")]
+        [SerializeField] private bool _appendVersionToDescription = false;
 
         [Header("Steamworks info")]
         [SerializeField] private string _steamUsername;
