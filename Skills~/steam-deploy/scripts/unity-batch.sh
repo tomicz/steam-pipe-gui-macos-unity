@@ -26,7 +26,8 @@ if [ ! -x "$unity" ]; then
     exit 1
 fi
 
-if pgrep -f "MacOS/Unity .*$project" >/dev/null 2>&1; then
+# Match only editor processes that have this project open, not Unity Hub helpers that mention the path.
+if pgrep -f "Unity\.app/Contents/MacOS/Unity .*-(projectPath|createproject) $project( |$)" >/dev/null 2>&1; then
     echo "$project is open in the Unity editor. Close it and run again." >&2
     exit 1
 fi
