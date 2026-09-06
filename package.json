@@ -1,12 +1,27 @@
 {
     "name": "com.tomicz.unity-steam-macos-deployer",
-    "version": "1.0.1",
-    "displayName": "Unity macOS Steam Deployer",
-    "description": "Simplify Steam game deployment on macOS with our user-friendly deployer. This tool streamlines the upload process using the Steamworks SDK, providing a hassle-free experience for macOS users and ensuring cross-platform consistency. Get your game on Steam effortlessly!",
+    "version": "1.1.0",
+    "displayName": "SteamPipeGUI for macOS",
+    "description": "Build your Unity game and upload it to Steam from the Unity Editor on macOS. Generates the SteamPipe VDF scripts for you; you only provide the App ID, Depot ID and Steamworks SDK path.",
     "unity": "2018.3",
+    "license": "MIT",
+    "keywords": [
+        "steam",
+        "steamworks",
+        "steampipe",
+        "steamcmd",
+        "deploy",
+        "macos"
+    ],
     "author": {
         "name": "Darko Tomic - Tomicz Engineering LLC",
         "email": "tomiczdarko@gmail.com",
         "url": "https://github.com/tomicz"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tomicz/steam-pipe-gui-macos-unity.git"
+    },
+    "documentationUrl": "https://github.com/tomicz/steam-pipe-gui-macos-unity#readme",
+    "changelogUrl": "https://github.com/tomicz/steam-pipe-gui-macos-unity/blob/main/CHANGELOG.md"
 }
