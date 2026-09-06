@@ -58,6 +58,7 @@ namespace Tomicz.Deployer
         {
             bool valid = true;
 
+            valid &= Require(IsStandalone(_buildTarget), $"Build target {_buildTarget} is not a standalone platform. Use StandaloneOSX, StandaloneWindows, StandaloneWindows64 or StandaloneLinux64.");
             valid &= Require(!string.IsNullOrEmpty(_sdkPath) && Directory.Exists(ContentBuilderPath), "SDK folder path is not set or does not contain tools/ContentBuilder.");
             valid &= Require(!string.IsNullOrWhiteSpace(_appName), "App name is empty.");
             valid &= Require(_appName.IndexOfAny(InvalidAppNameChars) < 0, "App name must not contain slashes or double quotes.");
@@ -95,6 +96,14 @@ namespace Tomicz.Deployer
             }
 
             return condition;
+        }
+
+        private static bool IsStandalone(BuildTarget buildTarget)
+        {
+            return buildTarget == BuildTarget.StandaloneOSX
+                || buildTarget == BuildTarget.StandaloneWindows
+                || buildTarget == BuildTarget.StandaloneWindows64
+                || buildTarget == BuildTarget.StandaloneLinux64;
         }
 
         private string GetExecutableExtension()
