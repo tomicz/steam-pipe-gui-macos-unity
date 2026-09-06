@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Tomicz.Deployer
 {
