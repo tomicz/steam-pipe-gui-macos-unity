@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
@@ -108,39 +109,15 @@ namespace Tomicz.Deployer
         private static void WriteVdfScripts(DeploymentConfigurator configurator)
         {
             Directory.CreateDirectory(configurator.ScriptsPath);
-            File.WriteAllText(configurator.AppVdfPath, GetAppVdfContent(configurator));
-            File.WriteAllText(configurator.DepotVdfPath, GetDepotVdfContent(configurator));
-        }
 
-        private static string GetAppVdfContent(DeploymentConfigurator configurator)
-        {
-            string buildOutputPath = Path.Combine(configurator.ContentBuilderPath, "output", configurator.BuildTarget.ToString());
+            File.WriteAllText(configurator.DepotVdfPath, VdfGenerator.DepotBuild(configurator.DepotId, configurator.ContentPath, "*"));
 
-            return "appbuild\n{\n" +
-                   $"\t\"appid\" \"{configurator.AppId}\"\n" +
-                   $"\t\"desc\" \"{configurator.BuildDescription}\"\n" +
-                   $"\t\"buildoutput\" \"{buildOutputPath}\"\n" +
-                   "\t\"contentroot\" \"\"\n" +
-                   $"\t\"setlive\" \"{configurator.SetLiveBranch}\"\n" +
-                   "\t\"preview\" \"0\"\n" +
-                   "\t\"local\" \"\"\n" +
-                   "\t\"depots\"\n\t{\n" +
-                   $"\t\t\"{configurator.DepotId}\" \"{configurator.DepotVdfPath}\"\n" +
-                   "\t}\n}\n";
-        }
+            List<KeyValuePair<string, string>> depotScripts = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>(configurator.DepotId, configurator.DepotVdfPath)
+            };
 
-        private static string GetDepotVdfContent(DeploymentConfigurator configurator)
-        {
-            return "DepotBuildConfig\n{\n" +
-                   $"\t\"DepotID\" \"{configurator.DepotId}\"\n" +
-                   $"\t\"contentroot\" \"{configurator.ContentPath}\"\n" +
-                   "\t\"FileMapping\"\n\t{\n" +
-                   "\t\t\"LocalPath\" \"*\"\n" +
-                   "\t\t\"DepotPath\" \".\"\n" +
-                   "\t\t\"recursive\" \"1\"\n" +
-                   "\t}\n" +
-                   "\t\"FileExclusion\" \"*.pdb\"\n" +
-                   "}\n";
+            File.WriteAllText(configurator.AppVdfPath, VdfGenerator.AppBuild(configurator.AppId, configurator.BuildDescription, configurator.BuildOutputPath, configurator.SetLiveBranch, depotScripts));
         }
 
         private static void DeleteDoNotShipFolder(DeploymentConfigurator configurator)

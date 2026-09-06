@@ -43,6 +43,7 @@ namespace Tomicz.Deployer
         public string ContentBuilderPath => Path.Combine(_sdkPath, "tools", "ContentBuilder");
         public string ContentPath => Path.Combine(ContentBuilderPath, "content", _buildTarget.ToString());
         public string ScriptsPath => Path.Combine(ContentBuilderPath, "scripts");
+        public string BuildOutputPath => Path.Combine(ContentBuilderPath, "output", _buildTarget.ToString());
         public string AppVdfPath => Path.Combine(ScriptsPath, $"app_{_depotId}.vdf");
         public string DepotVdfPath => Path.Combine(ScriptsPath, $"depot_{_depotId}.vdf");
         public string ExecutablePath => Path.Combine(ContentPath, _appName + GetExecutableExtension());
