@@ -111,10 +111,9 @@ namespace Tomicz.Deployer
 
         private void UploadTarget(DeploymentConfigurator deploymentConfigurator)
         {
-            DeleteDoNotShipFolderBeforeUpload(deploymentConfigurator);
-
             if (GUILayout.Button("Upload"))
             {
+                DeleteDoNotShipFolderBeforeUpload(deploymentConfigurator);
                 OpenTerminal(deploymentConfigurator.sdkPath, deploymentConfigurator.SteamUsername, deploymentConfigurator.DepotId);
             }
         }
@@ -128,7 +127,6 @@ namespace Tomicz.Deployer
                 if (Directory.Exists(doNotShipFolderPath))
                 {
                     Directory.Delete(doNotShipFolderPath, true);
-                    AssetDatabase.Refresh(); 
                 }
             }
         }

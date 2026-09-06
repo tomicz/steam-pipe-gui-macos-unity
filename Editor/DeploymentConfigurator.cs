@@ -27,8 +27,8 @@ namespace Tomicz.Deployer
         [SerializeField] private string _appId;
         [SerializeField] private string _depotId;
 
-        [Tooltip("A folder YourGameName_BackUpThisFolder_ButDontShipItWithYourGame is auto generated when using IL2CPP scripting backend. Do not upload this folder with your build to Steam. By default it will be deleted. You are given an option to back it up before deleting if you are planning using it for debugging purposes. If you are using Mono backend scripting or making Windows builds, then ignore this field.")]
         [Header("IL2CPP")]
+        [Tooltip("IL2CPP builds create a folder named <App Name>_BackUpThisFolder_ButDontShipItWithYourGame next to the executable. It must not be uploaded to Steam. When enabled, the folder is deleted when you click Upload, so back it up between Generate Build and Upload if you need it for debugging. Has no effect on Mono builds.")]
         [SerializeField] private bool _deleteDoNotShipFolder = true;
 
         public void OnBuildTargetClicked()
