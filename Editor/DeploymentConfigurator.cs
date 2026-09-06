@@ -9,6 +9,9 @@ namespace Tomicz.Deployer
     [CreateAssetMenu(fileName = "DeploymentConfigurator", menuName = "Tomicz/Steam/Deployment Target")]
     public class DeploymentConfigurator : ScriptableObject
     {
+        // These end up in file paths or unescaped VDF strings.
+        private static readonly char[] InvalidAppNameChars = { '/', '\\', '"' };
+
         public BuildTarget BuildTarget => _buildTarget;
         public string Description => _description;
         public string AppName => _appName;
@@ -57,6 +60,9 @@ namespace Tomicz.Deployer
 
             valid &= Require(!string.IsNullOrEmpty(_sdkPath) && Directory.Exists(ContentBuilderPath), "SDK folder path is not set or does not contain tools/ContentBuilder.");
             valid &= Require(!string.IsNullOrWhiteSpace(_appName), "App name is empty.");
+            valid &= Require(_appName.IndexOfAny(InvalidAppNameChars) < 0, "App name must not contain slashes or double quotes.");
+            valid &= Require(_description.IndexOf('"') < 0, "Description must not contain double quotes.");
+            valid &= Require(_setLiveBranch.IndexOf('"') < 0, "Set Live Branch must not contain double quotes.");
             valid &= Require(!string.IsNullOrWhiteSpace(_steamUsername), "Steam username is empty.");
             valid &= Require(!string.IsNullOrWhiteSpace(_appId), "App ID is empty.");
             valid &= Require(!string.IsNullOrWhiteSpace(_depotId), "Depot ID is empty.");
