@@ -110,12 +110,14 @@ namespace Tomicz.Deployer
         {
             Directory.CreateDirectory(configurator.ScriptsPath);
 
-            File.WriteAllText(configurator.DepotVdfPath, VdfGenerator.DepotBuild(configurator.DepotId, configurator.ContentPath, "*"));
+            List<KeyValuePair<string, string>> depotScripts = new List<KeyValuePair<string, string>>();
 
-            List<KeyValuePair<string, string>> depotScripts = new List<KeyValuePair<string, string>>
+            foreach (Depot depot in configurator.Depots)
             {
-                new KeyValuePair<string, string>(configurator.DepotId, configurator.DepotVdfPath)
-            };
+                string depotVdfPath = configurator.GetDepotVdfPath(depot.DepotId);
+                File.WriteAllText(depotVdfPath, VdfGenerator.DepotBuild(depot.DepotId, configurator.ContentPath, depot.LocalPath));
+                depotScripts.Add(new KeyValuePair<string, string>(depot.DepotId, depotVdfPath));
+            }
 
             File.WriteAllText(configurator.AppVdfPath, VdfGenerator.AppBuild(configurator.AppId, configurator.BuildDescription, configurator.BuildOutputPath, configurator.SetLiveBranch, depotScripts));
         }

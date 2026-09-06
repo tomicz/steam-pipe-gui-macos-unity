@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Tomicz.Deployer
 {
     [CreateAssetMenu(fileName = "DeploymentConfigurator", menuName = "Tomicz/Steam/Deployment Target")]
-    public class DeploymentConfigurator : ScriptableObject
+    public class DeploymentConfigurator : ScriptableObject, ISerializationCallbackReceiver
     {
         // These end up in file paths or unescaped VDF strings.
         private static readonly char[] InvalidAppNameChars = { '/', '\\', '"' };
@@ -35,7 +35,7 @@ namespace Tomicz.Deployer
         public string AppName => _appName;
         public string SteamUsername => _steamUsername;
         public string AppId => _appId;
-        public string DepotId => _depotId;
+        public IReadOnlyList<Depot> Depots => _depots;
         public string SetLiveBranch => _setLiveBranch;
         public bool DeleteDoNotShipFolder => _deleteDoNotShipFolder;
         public string SdkPath => _sdkPath;
@@ -44,8 +44,7 @@ namespace Tomicz.Deployer
         public string ContentPath => Path.Combine(ContentBuilderPath, "content", _buildTarget.ToString());
         public string ScriptsPath => Path.Combine(ContentBuilderPath, "scripts");
         public string BuildOutputPath => Path.Combine(ContentBuilderPath, "output", _buildTarget.ToString());
-        public string AppVdfPath => Path.Combine(ScriptsPath, $"app_{_depotId}.vdf");
-        public string DepotVdfPath => Path.Combine(ScriptsPath, $"depot_{_depotId}.vdf");
+        public string AppVdfPath => Path.Combine(ScriptsPath, $"app_build_{_appId}_{_buildTarget}.vdf");
         public string ExecutablePath => Path.Combine(ContentPath, _appName + GetExecutableExtension());
         public bool HasBuild => File.Exists(ExecutablePath) || Directory.Exists(ExecutablePath);
 
@@ -63,9 +62,14 @@ namespace Tomicz.Deployer
         [Header("Steamworks info")]
         [SerializeField] private string _steamUsername;
         [SerializeField] private string _appId;
-        [SerializeField] private string _depotId;
+        [Tooltip("Depots that receive this build. Most games need one per platform. Add more for DLC or shared-content depots that take a subfolder of the build.")]
+        [SerializeField] private List<Depot> _depots = new List<Depot>();
         [Tooltip("Branch the uploaded build is set live on, for example beta. Leave empty to upload without setting it live, then pick the build manually under SteamPipe > Builds.")]
         [SerializeField] private string _setLiveBranch = "beta";
+
+        // Single depot ID from versions before 1.2.0. Moved into _depots on load.
+        [HideInInspector]
+        [SerializeField] private string _depotId;
 
         [Header("IL2CPP")]
         [Tooltip("IL2CPP builds create a folder named <App Name>_BackUpThisFolder_ButDontShipItWithYourGame next to the executable. It must not be uploaded to Steam. When enabled, the folder is deleted when you click Upload, so back it up between Generate Build and Upload if you need it for debugging. Has no effect on Mono builds.")]
@@ -74,6 +78,30 @@ namespace Tomicz.Deployer
         // Drawn by DeploymentConfiguratorEditor next to a Browse button.
         [HideInInspector]
         [SerializeField] private string _sdkPath = "";
+
+        public string GetDepotVdfPath(string depotId)
+        {
+            return Path.Combine(ScriptsPath, $"depot_build_{depotId}.vdf");
+        }
+
+        public void OnBeforeSerialize()
+        {
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if (string.IsNullOrEmpty(_depotId))
+            {
+                return;
+            }
+
+            if (_depots.Count == 0)
+            {
+                _depots.Add(new Depot(_depotId, "*"));
+            }
+
+            _depotId = null;
+        }
 
         /// <summary>
         /// Logs an error for every required field that is missing. Returns true when all are set.
@@ -90,7 +118,19 @@ namespace Tomicz.Deployer
             valid &= Require(_setLiveBranch.IndexOf('"') < 0, "Set Live Branch must not contain double quotes.");
             valid &= Require(!string.IsNullOrWhiteSpace(_steamUsername), "Steam username is empty.");
             valid &= Require(!string.IsNullOrWhiteSpace(_appId), "App ID is empty.");
-            valid &= Require(!string.IsNullOrWhiteSpace(_depotId), "Depot ID is empty.");
+            valid &= Require(_depots.Count > 0, "At least one depot is required.");
+
+            HashSet<string> seenDepotIds = new HashSet<string>();
+
+            foreach (Depot depot in _depots)
+            {
+                valid &= Require(depot != null && !string.IsNullOrWhiteSpace(depot.DepotId), "A depot has no Depot ID.");
+
+                if (depot != null && !string.IsNullOrWhiteSpace(depot.DepotId))
+                {
+                    valid &= Require(seenDepotIds.Add(depot.DepotId), $"Depot ID {depot.DepotId} is listed more than once.");
+                }
+            }
 
             return valid;
         }
