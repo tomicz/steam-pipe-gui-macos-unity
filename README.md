@@ -206,4 +206,4 @@ Then open **Window > General > Test Runner** and run the EditMode tests, or from
 
 MIT. See [LICENSE](LICENSE).
 
-Developed by Darko Tomic - Tomicz Engineering LLC. More Unity tools and articles at [darkounity.com](https://darkounity.com).
+Developed by Darko Tomic, TOMICZ. More Unity tools and articles at [darkounity.com](https://darkounity.com).
