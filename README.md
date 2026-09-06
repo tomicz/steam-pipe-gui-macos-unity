@@ -4,16 +4,27 @@ Simplify the process of bringing your game to Steam for macOS with our user-frie
 
 ## Table of Contents
 - [Overview](#overview)
+- [Requirements](#requirements)
 - [Getting Started with Steamworks](#getting-started-with-steamworks)
 - [Download Steam SDK](#download-steam-sdk)
 - [Configuring Launch Options](#configuring-launch-options)
 - [Installing Depots](#installing-depots)
 - [Installing Deployer in Unity](#installing-deployer-in-unity)
 - [Deploying Builds from Unity Editor](#deploying-builds-from-unity-editor)
+- [How It Works](#how-it-works)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
 
 ## Overview
 
 While Windows users have the luxury of SteamPipeGUI for deploying builds effortlessly, macOS users face the challenge of using Steam commands in their Command Line Interface (CLI). Steam's documentation can be unclear for first-timers. To address this, I created this repository, providing a tool to publish new builds on Steam directly from your Unity Editor on macOS. The best part? It reduces the publishing time from 30 minutes to under 1 minute.
+
+## Requirements
+
+- macOS. The upload runs `steamcmd.sh` from the SDK's `builder_osx` folder in Terminal, so the Unity Editor must be running on a Mac. The build itself can target macOS, Windows or Linux.
+- Unity 2018.3 or newer with the .NET 4.x scripting runtime.
+- The [Steamworks SDK](#download-steam-sdk) unpacked somewhere on disk.
+- A Steamworks account with an App ID and at least one Depot ID (see the sections below).
 
 ## Getting Started with Steamworks
 
@@ -73,25 +84,69 @@ Repeat these steps for each platform you intend to support. Depots allow you to 
 1. Open your Unity project.
 2. Open Package Manager (**Window > Package Manager**).
 3. Click on **+** and choose **Add package from Git URL**.
-4. Paste [git@github.com:tomicz/unity-steam-macos-deployer.git](git@github.com:tomicz/unity-steam-macos-deployer.git) and click **Add**.
+4. Paste the URL below and click **Add**.
+
+   ```
+   https://github.com/tomicz/steam-pipe-gui-macos-unity.git
+   ```
 
 ## Deploying Builds from Unity Editor
 
-1. Right-click inside your Unity Project tab and go to Create > Tomicz > Steam > Deployment Target.
-2. Create targets for each platform, e.g., DeploymentTargetMacOS, DeploymentTargetWindows.
-3. Enter your game name (must match Launch Options).
-4. Enter description, Steam username, app ID, and depot ID.
-5. Select your Steam SDK path.
+1. Right-click inside your Unity Project tab and go to **Create > Tomicz > Steam > Deployment Target**.
+2. Create one target per platform, e.g. `DeploymentTargetMacOS`, `DeploymentTargetWindows`.
+3. Fill in the target in the Inspector:
+
+   | Field | What to enter |
+   |---|---|
+   | **Build Target** | The platform to build, e.g. `StandaloneOSX` or `StandaloneWindows64`. |
+   | **App Name** | The executable name. It must match your Launch Options. |
+   | **Description** | Shown in the Steamworks build list. Something like `StandaloneOSX 0.0.4` makes builds easy to tell apart. |
+   | **Steam Username** | The Steam account that owns the app. |
+   | **App ID** / **Depot ID** | From the Steamworks dashboard. |
+   | **Set Live Branch** | Branch the upload is set live on. Defaults to `beta`. Leave empty to upload without setting it live and pick the build manually under SteamPipe > Builds. |
+   | **Delete Do Not Ship Folder** | IL2CPP only. Deletes the `<AppName>_BackUpThisFolder_ButDontShipItWithYourGame` folder when you click **Upload**, so it is never shipped to players. Back it up between Generate Build and Upload if you need it for debugging. |
+
+4. Click **Browse** next to **SDK Folder Path** and select the root folder of the Steamworks SDK (the one containing `tools/ContentBuilder`). The path is saved with the target, so you only do this once. You can also paste the path into the field.
 
    ### Examples
+   The screenshots predate the separate Generate Build and Upload buttons and the Set Live Branch and IL2CPP fields, but the rest of the layout is the same.
+
    #### MacOS
    ![MacOS Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/104edc81-dc88-4637-af3c-331cfdc30f7b)
 
    #### Windows
    ![Windows Target](https://github.com/tomicz/unity-steam-macos-deployer/assets/7763133/7f6f939a-1822-4662-9979-c87bd57bd01a)
 
-6. Click **Build Target** to build and upload your game. Follow the on-screen prompts.
+5. Click **Generate Build**. The scenes enabled in Build Settings are built into the SDK content folder. Check the Console: a failed build is reported there and nothing is uploaded until you fix it.
+6. Click **Upload**. A Terminal window opens and runs `steamcmd`. Enter your Steam password and Steam Guard code when asked, then wait for the upload to finish.
+
+You can generate a build without uploading it, and you can click **Upload** again later without rebuilding. Missing fields or a wrong SDK path are reported in the Console before anything runs.
 
 After the upload is complete, go to your app in the Steamworks dashboard and click SteamPipe > Builds to see your newly uploaded builds. Keep a custom description for each build for easy identification, such as "Target: StandaloneOSX 0.0.x" or "Target: StandaloneWindows 0.0.x."
+
+## How It Works
+
+Everything happens inside the Steamworks SDK folder you selected:
+
+- **Generate Build** writes `tools/ContentBuilder/scripts/app_<DepotId>.vdf` and `depot_<DepotId>.vdf` from the target's fields, then builds the player into `tools/ContentBuilder/content/<BuildTarget>/<AppName>.app` (or `.exe`, `.x86_64`).
+- **Upload** rewrites the same two VDF files so they match the current Inspector values, deletes the IL2CPP do-not-ship folder if that option is on, and runs:
+
+  ```
+  tools/ContentBuilder/builder_osx/steamcmd.sh +login <username> +run_app_build_http tools/ContentBuilder/scripts/app_<DepotId>.vdf +quit
+  ```
+
+- The depot VDF uploads everything under `content/<BuildTarget>` recursively and excludes `*.pdb` files.
+
+## Troubleshooting
+
+- **"SDK folder path is not set or does not contain tools/ContentBuilder"**: select the SDK root folder, not a subfolder.
+- **"steamcmd.sh not found"**: the SDK is incomplete or the path is wrong. The file lives at `tools/ContentBuilder/builder_osx/steamcmd.sh`.
+- **Login fails in Terminal**: Steam Guard asks for a code on the first login from a machine. Type it in the Terminal window.
+- **Build is not showing up in Steamworks**: check the Terminal output for errors, and make sure the Depot ID in the target matches a depot of the App ID.
+- **The SDK path contains a single quote**: rename the folder. Quotes in the path cannot be passed safely to Terminal.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
 
 Developed by Darko Tomic - Tomicz Engineering LLC
