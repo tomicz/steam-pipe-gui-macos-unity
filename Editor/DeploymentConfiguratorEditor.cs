@@ -66,7 +66,7 @@ namespace Tomicz.Deployer
         private static void Upload(DeploymentConfigurator configurator)
         {
             DeleteDoNotShipFolder(configurator);
-            OpenTerminal(configurator.SdkPath, configurator.SteamUsername, configurator.DepotId);
+            RunSteamcmdInTerminal(configurator);
         }
 
         private static void WriteVdfScripts(DeploymentConfigurator configurator)
@@ -123,34 +123,43 @@ namespace Tomicz.Deployer
             }
         }
 
-        public static void OpenTerminal(string sdkPath, string username, string depotId)
+        private static void RunSteamcmdInTerminal(DeploymentConfigurator configurator)
         {
-            string steamCmdCommand = $"{sdkPath}/tools/ContentBuilder/builder_osx/steamcmd.sh +login {username} +run_app_build_http {sdkPath}/tools/ContentBuilder/scripts/app_{depotId}.vdf +quit";
-            string terminalPath = "/System/Applications/Utilities/Terminal.app";
+            string steamcmdPath = Path.Combine(configurator.ContentBuilderPath, "builder_osx", "steamcmd.sh");
 
-            ProcessStartInfo processStartInfo = new ProcessStartInfo()
+            if (!File.Exists(steamcmdPath))
             {
-                FileName = terminalPath,
-                UseShellExecute = true
-            };
+                UnityEngine.Debug.LogError($"steamcmd.sh not found at {steamcmdPath}. Check the SDK folder path.", configurator);
+                return;
+            }
 
-            Process.Start(processStartInfo);
-
-            RunSteamcmdCommand(steamCmdCommand);
-        }
-
-        private static void RunSteamcmdCommand(string steamcmdCommand)
-        {
-            // Run the SteamCMD command in Terminal
-            ProcessStartInfo runCommandInfo = new ProcessStartInfo()
+            if (configurator.SdkPath.Contains("'"))
             {
-                FileName = "osascript", // osascript is a command-line tool for executing AppleScripts
-                Arguments = $"-e 'tell application \"Terminal\" to do script \"{steamcmdCommand}\"'",
+                UnityEngine.Debug.LogError("The SDK folder path must not contain a single quote (').", configurator);
+                return;
+            }
+
+            // Paths are single-quoted so SDK folders containing spaces work in the shell.
+            string command = $"'{steamcmdPath}' +login {configurator.SteamUsername} +run_app_build_http '{configurator.AppVdfPath}' +quit";
+
+            string activate = "tell application \"Terminal\" to activate";
+            string doScript = $"tell application \"Terminal\" to do script \"{command}\"";
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "osascript",
+                Arguments = $"-e {QuoteArgument(activate)} -e {QuoteArgument(doScript)}",
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
 
-            Process.Start(runCommandInfo);
+            Process.Start(startInfo);
+        }
+
+        // Wraps a process argument in double quotes, escaping backslashes and quotes inside it.
+        private static string QuoteArgument(string value)
+        {
+            return "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
         }
     }
 }
