@@ -17,7 +17,7 @@ namespace Tomicz.Deployer
     /// </summary>
     public static class CommandLine
     {
-        private const string Prefix = "[SteamDeployer] ";
+        private const string Prefix = Deployer.LogPrefix;
 
         /// <summary>Validates the target, writes the VDF scripts and builds the player.</summary>
         public static void Build()

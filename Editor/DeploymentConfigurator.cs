@@ -111,6 +111,7 @@ namespace Tomicz.Deployer
             bool valid = true;
 
             valid &= Require(IsStandalone(_buildTarget), $"Build target {_buildTarget} is not a standalone platform. Use StandaloneOSX, StandaloneWindows, StandaloneWindows64 or StandaloneLinux64.");
+            valid &= Require(GetScenePaths().Length > 0, "No scenes are enabled in Build Settings (File > Build Settings). Add at least one scene.");
             valid &= Require(!string.IsNullOrEmpty(_sdkPath) && Directory.Exists(ContentBuilderPath), "SDK folder path is not set or does not contain tools/ContentBuilder.");
             valid &= Require(!string.IsNullOrWhiteSpace(_appName), "App name is empty.");
             valid &= Require(_appName.IndexOfAny(InvalidAppNameChars) < 0, "App name must not contain slashes or double quotes.");
@@ -145,11 +146,11 @@ namespace Tomicz.Deployer
 
             if (summary.result == BuildResult.Succeeded)
             {
-                Debug.Log($"Build succeeded: {summary.outputPath}", this);
+                Debug.Log($"{Deployer.LogPrefix}Build succeeded: {summary.outputPath}", this);
                 return true;
             }
 
-            Debug.LogError($"Build {summary.result} with {summary.totalErrors} error(s). See the console for details.", this);
+            Debug.LogError($"{Deployer.LogPrefix}Build did not succeed (result {summary.result}, {summary.totalErrors} error(s)). See the console for details.", this);
             return false;
         }
 
@@ -157,7 +158,7 @@ namespace Tomicz.Deployer
         {
             if (!condition)
             {
-                Debug.LogError($"Deployment target '{name}': {message}", this);
+                Debug.LogError($"{Deployer.LogPrefix}Deployment target '{name}': {message}", this);
             }
 
             return condition;

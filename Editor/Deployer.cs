@@ -12,6 +12,9 @@ namespace Tomicz.Deployer
     /// </summary>
     public static class Deployer
     {
+        /// <summary>Prefix on every message the package logs, so they can be filtered out of a batch-mode log.</summary>
+        public const string LogPrefix = "[SteamDeployer] ";
+
         private const string DoNotShipFolderSuffix = "_BackUpThisFolder_ButDontShipItWithYourGame";
 
         /// <summary>
@@ -42,7 +45,7 @@ namespace Tomicz.Deployer
 
             if (!configurator.HasBuild)
             {
-                Debug.LogError($"No build found at {configurator.ExecutablePath}. Generate a build first.", configurator);
+                Debug.LogError($"{LogPrefix}No build found at {configurator.ExecutablePath}. Generate a build first.", configurator);
                 return false;
             }
 
@@ -50,13 +53,13 @@ namespace Tomicz.Deployer
 
             if (!File.Exists(steamcmdPath))
             {
-                Debug.LogError($"steamcmd.sh not found at {steamcmdPath}. Check the SDK folder path.", configurator);
+                Debug.LogError($"{LogPrefix}steamcmd.sh not found at {steamcmdPath}. Check the SDK folder path.", configurator);
                 return false;
             }
 
             if (configurator.SdkPath.Contains("'"))
             {
-                Debug.LogError("The SDK folder path must not contain a single quote (').", configurator);
+                Debug.LogError($"{LogPrefix}The SDK folder path must not contain a single quote (').", configurator);
                 return false;
             }
 
@@ -136,7 +139,7 @@ namespace Tomicz.Deployer
             if (Directory.Exists(folderPath))
             {
                 Directory.Delete(folderPath, true);
-                Debug.Log($"Deleted IL2CPP debug folder: {folderPath}");
+                Debug.Log($"{LogPrefix}Deleted IL2CPP debug folder: {folderPath}");
             }
         }
 
