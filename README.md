@@ -1,6 +1,8 @@
 # SteamPipeGUI for MacOS (Unity)
 
-Simplify the process of bringing your game to Steam for macOS with our user-friendly deployer tool. This tool streamlines the upload process using the Steamworks SDK, ensuring a seamless experience for macOS users while maintaining consistency across different platforms. Easily publish your game on Steam hassle-free!
+Build and upload your Unity game to Steam from the Unity Editor on macOS, with no steamcmd commands or VDF scripts to write. It is the macOS answer to Valve's Windows-only SteamPipeGUI: fill in a deployment target once, then click Build and Upload.
+
+Read the full guide with screenshots on Darko Unity: [SteamPipeGUI for macOS: Build and Upload to Steam Directly from Unity](https://darkounity.com/blog/steampipegui-for-macos-ship-your-unity-game-to-steam-without-the-cli).
 
 ## Table of Contents
 - [Overview](#overview)
@@ -204,4 +206,4 @@ Then open **Window > General > Test Runner** and run the EditMode tests, or from
 
 MIT. See [LICENSE](LICENSE).
 
-Developed by Darko Tomic - Tomicz Engineering LLC
+Developed by Darko Tomic - Tomicz Engineering LLC. More Unity tools and articles at [darkounity.com](https://darkounity.com).
