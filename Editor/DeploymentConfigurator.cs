@@ -24,6 +24,8 @@ namespace Tomicz.Deployer
         public string ScriptsPath => Path.Combine(ContentBuilderPath, "scripts");
         public string AppVdfPath => Path.Combine(ScriptsPath, $"app_{_depotId}.vdf");
         public string DepotVdfPath => Path.Combine(ScriptsPath, $"depot_{_depotId}.vdf");
+        public string ExecutablePath => Path.Combine(ContentPath, _appName + GetExecutableExtension());
+        public bool HasBuild => File.Exists(ExecutablePath) || Directory.Exists(ExecutablePath);
 
         [SerializeField] private BuildTarget _buildTarget;
 
@@ -67,8 +69,7 @@ namespace Tomicz.Deployer
         /// </summary>
         public bool BuildPlayer()
         {
-            string outputPath = Path.Combine(ContentPath, _appName + GetExecutableExtension());
-            BuildSummary summary = BuildPipeline.BuildPlayer(GetScenePaths(), outputPath, _buildTarget, BuildOptions.None).summary;
+            BuildSummary summary = BuildPipeline.BuildPlayer(GetScenePaths(), ExecutablePath, _buildTarget, BuildOptions.None).summary;
 
             if (summary.result == BuildResult.Succeeded)
             {

@@ -75,6 +75,12 @@ namespace Tomicz.Deployer
                 return;
             }
 
+            if (!configurator.HasBuild)
+            {
+                UnityEngine.Debug.LogError($"No build found at {configurator.ExecutablePath}. Click Generate Build first.", configurator);
+                return;
+            }
+
             // Regenerate so the VDF reflects the current description and branch, even if they changed after the build.
             WriteVdfScripts(configurator);
             DeleteDoNotShipFolder(configurator);
