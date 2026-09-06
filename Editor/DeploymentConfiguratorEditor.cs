@@ -59,12 +59,22 @@ namespace Tomicz.Deployer
 
         private static void GenerateBuild(DeploymentConfigurator configurator)
         {
+            if (!configurator.Validate())
+            {
+                return;
+            }
+
             WriteVdfScripts(configurator);
             configurator.BuildPlayer();
         }
 
         private static void Upload(DeploymentConfigurator configurator)
         {
+            if (!configurator.Validate())
+            {
+                return;
+            }
+
             DeleteDoNotShipFolder(configurator);
             RunSteamcmdInTerminal(configurator);
         }

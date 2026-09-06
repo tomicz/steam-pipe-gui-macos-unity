@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace Tomicz.Deployer
@@ -41,35 +43,76 @@ namespace Tomicz.Deployer
         [HideInInspector]
         [SerializeField] private string _sdkPath = "";
 
-        public void BuildPlayer()
+        /// <summary>
+        /// Logs an error for every required field that is missing. Returns true when all are set.
+        /// </summary>
+        public bool Validate()
+        {
+            bool valid = true;
+
+            valid &= Require(!string.IsNullOrEmpty(_sdkPath) && Directory.Exists(ContentBuilderPath), "SDK folder path is not set or does not contain tools/ContentBuilder.");
+            valid &= Require(!string.IsNullOrWhiteSpace(_appName), "App name is empty.");
+            valid &= Require(!string.IsNullOrWhiteSpace(_steamUsername), "Steam username is empty.");
+            valid &= Require(!string.IsNullOrWhiteSpace(_appId), "App ID is empty.");
+            valid &= Require(!string.IsNullOrWhiteSpace(_depotId), "Depot ID is empty.");
+
+            return valid;
+        }
+
+        /// <summary>
+        /// Builds the enabled scenes into the SDK content folder. Returns true when the build succeeded.
+        /// </summary>
+        public bool BuildPlayer()
         {
             string outputPath = Path.Combine(ContentPath, _appName + GetExecutableExtension());
+            BuildSummary summary = BuildPipeline.BuildPlayer(GetScenePaths(), outputPath, _buildTarget, BuildOptions.None).summary;
 
-            BuildPipeline.BuildPlayer(GetScenePaths(), outputPath, _buildTarget, BuildOptions.None);
+            if (summary.result == BuildResult.Succeeded)
+            {
+                Debug.Log($"Build succeeded: {summary.outputPath}", this);
+                return true;
+            }
 
-            Debug.Log("Target successfully built.");
+            Debug.LogError($"Build {summary.result} with {summary.totalErrors} error(s). See the console for details.", this);
+            return false;
+        }
+
+        private bool Require(bool condition, string message)
+        {
+            if (!condition)
+            {
+                Debug.LogError($"Deployment target '{name}': {message}", this);
+            }
+
+            return condition;
         }
 
         private string GetExecutableExtension()
         {
-            if (_buildTarget == BuildTarget.StandaloneOSX)
+            switch (_buildTarget)
             {
-                return ".app";
+                case BuildTarget.StandaloneOSX:
+                    return ".app";
+                case BuildTarget.StandaloneLinux64:
+                    return ".x86_64";
+                default:
+                    return ".exe";
             }
-
-            return ".exe";
         }
 
         private static string[] GetScenePaths()
         {
-            string[] scenes = new string[EditorBuildSettings.scenes.Length];
+            List<string> scenes = new List<string>();
 
-            for (int i = 0; i < scenes.Length; i++)
+            foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
             {
-                scenes[i] = EditorBuildSettings.scenes[i].path;
+                if (scene.enabled)
+                {
+                    scenes.Add(scene.path);
+                }
             }
 
-            return scenes;
+            return scenes.ToArray();
         }
     }
 }
