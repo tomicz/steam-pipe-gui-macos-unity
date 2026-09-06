@@ -75,6 +75,8 @@ namespace Tomicz.Deployer
                 return;
             }
 
+            // Regenerate so the VDF reflects the current description and branch, even if they changed after the build.
+            WriteVdfScripts(configurator);
             DeleteDoNotShipFolder(configurator);
             RunSteamcmdInTerminal(configurator);
         }
@@ -95,7 +97,7 @@ namespace Tomicz.Deployer
                    $"\t\"desc\" \"{configurator.Description}\"\n" +
                    $"\t\"buildoutput\" \"{buildOutputPath}\"\n" +
                    "\t\"contentroot\" \"\"\n" +
-                   "\t\"setlive\" \"beta\"\n" +
+                   $"\t\"setlive\" \"{configurator.SetLiveBranch}\"\n" +
                    "\t\"preview\" \"0\"\n" +
                    "\t\"local\" \"\"\n" +
                    "\t\"depots\"\n\t{\n" +
