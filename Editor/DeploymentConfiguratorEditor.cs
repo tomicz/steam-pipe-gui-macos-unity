@@ -31,6 +31,17 @@ namespace Tomicz.Deployer
                 Defer(() => Upload(configurator));
             }
 
+            if (GUILayout.Button("Build and Upload"))
+            {
+                Defer(() =>
+                {
+                    if (GenerateBuild(configurator))
+                    {
+                        Upload(configurator);
+                    }
+                });
+            }
+
             GUILayout.Space(10);
         }
 
@@ -64,15 +75,15 @@ namespace Tomicz.Deployer
             EditorApplication.delayCall += () => action();
         }
 
-        private static void GenerateBuild(DeploymentConfigurator configurator)
+        private static bool GenerateBuild(DeploymentConfigurator configurator)
         {
             if (!configurator.Validate())
             {
-                return;
+                return false;
             }
 
             WriteVdfScripts(configurator);
-            configurator.BuildPlayer();
+            return configurator.BuildPlayer();
         }
 
         private static void Upload(DeploymentConfigurator configurator)
