@@ -38,6 +38,6 @@ log="$project/Logs/steam-deploy-$(date +%Y%m%d-%H%M%S).log"
 "$unity" -batchmode -nographics -quit -projectPath "$project" -logFile "$log" "$@"
 status=$?
 
-grep -E '\[SteamDeployer\]|error CS[0-9]+|Build (succeeded|Failed|Cancelled)|^  [A-Z][A-Za-z ]*: |Deployment target .*: ' "$log" | grep -v 'UnityEngine.Debug:'
+grep -E '\[SteamDeployer\]|error CS[0-9]+|^  (Build target|App name|Description|Steam username|App ID|Depots|Set live branch|SDK path|Executable): ' "$log"
 echo "exit code: $status (full log: $log)"
 exit $status
