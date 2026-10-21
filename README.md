@@ -2,7 +2,7 @@
 
 Build and upload your Unity game to Steam from the Unity Editor on macOS, with no steamcmd commands or VDF scripts to write. It is the macOS answer to Valve's Windows-only SteamPipeGUI: fill in a deployment target once, then click Build and Upload.
 
-Read the full guide with screenshots on Darko Unity: [SteamPipeGUI for macOS: Build and Upload to Steam Directly from Unity](https://darkounity.com/blog/steampipegui-for-macos-ship-your-unity-game-to-steam-without-the-cli).
+Read the full guide with screenshots on Darko Unity: [SteamPipeGUI for macOS: Build and Upload to Steam Directly from Unity](https://darkounity.com/blog/steampipegui-for-macos-ship-your-unity-game-to-steam-without-the-cli?utm_source=github&utm_campaign=steampipe-gui).
 
 ## Table of Contents
 - [Overview](#overview)
@@ -206,4 +206,4 @@ Then open **Window > General > Test Runner** and run the EditMode tests, or from
 
 MIT. See [LICENSE](LICENSE).
 
-Developed by Darko Tomic, TOMICZ. More Unity tools and articles at [darkounity.com](https://darkounity.com).
+Developed by Darko Tomic, TOMICZ. More Unity tools and articles at [darkounity.com](https://darkounity.com?utm_source=github&utm_campaign=steampipe-gui).
